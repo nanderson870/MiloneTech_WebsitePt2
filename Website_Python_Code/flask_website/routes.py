@@ -49,8 +49,6 @@ exampleSensorData = [
     
 ]
 
-targetEmail = ""
-
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/login", methods=['GET', 'POST'])
 def login():

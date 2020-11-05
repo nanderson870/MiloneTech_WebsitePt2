@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
-import flask_website.fakedb as db
+import flask_website.dbAPI.app as db
 #from flask_login import LoginManager
 
 app = Flask(__name__)
