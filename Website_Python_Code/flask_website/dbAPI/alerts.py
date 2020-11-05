@@ -1,5 +1,5 @@
 from sqlalchemy import exc
-import flask_website.dbAPI.db as db
+import Website_Python_Code.flask_website.dbAPI.db as db
 
 
 class Alerts(db.Base):
@@ -10,8 +10,10 @@ def check_alerts(acc_id, sens_id):
     try:
         with db.engine.connect() as connection:
             existing_alerts = []
-            result = connection.execute(
-                "select * from alerts where accountID = {} and sensorID = '{}'".format(acc_id, sens_id))
+            result = connection.execute("select * "
+                                        "from alerts "
+                                        "where accountID = {} and sensorID = '{}'"
+                                        .format(acc_id, sens_id))
             for row in result:
                 existing_alerts.append(row)
             return existing_alerts
@@ -22,16 +24,20 @@ def check_alerts(acc_id, sens_id):
 def add_sensor_alert(acc_id, sens_id, trigger, email_alert, phone_alert):
     try:
         with db.engine.connect() as connection:
-            if len(check_alerts(acc_id, sens_id)) == 0 or not check_alerts(acc_id, sens_id):
+            checker = check_alerts(acc_id, sens_id)
+            if checker == 0 or not checker:
                 connection.execute(
-                    "insert into alerts values ({}, '{}', {}, {}, {})".format(acc_id, sens_id, trigger, email_alert,
+                    "insert into alerts "
+                    "values ({}, '{}', {}, {}, {})"
+                    .format(acc_id, sens_id, trigger, email_alert,
                                                                               phone_alert))
                 return True
             else:
                 connection.execute(
-                    "update alerts set alerts.triggerLevel = {}, alerts.alertEmail = {}, alerts.alertPhone = {} where "
-                    "alerts.accountID = {} and alerts.sensorID = {}".format(trigger, email_alert, phone_alert, acc_id,
-                                                                            sens_id))
+                    "update alerts "
+                    "set alerts.triggerLevel = {}, alerts.alertEmail = {}, alerts.alertPhone = {} "
+                    "where alerts.accountID = {} and alerts.sensorID = {}"
+                    .format(trigger, email_alert, phone_alert, acc_id, sens_id))
                 return True
     except exc.SQLAlchemyError:
         return False
@@ -40,7 +46,9 @@ def add_sensor_alert(acc_id, sens_id, trigger, email_alert, phone_alert):
 def remove_alert(acc_id, sens_id):
     try:
         with db.engine.connect() as connection:
-            connection.execute("delete from alerts where accountID = {} and sensorID = '{}'".format(acc_id, sens_id))
+            connection.execute("delete from alerts "
+                               "where accountID = {} and sensorID = '{}'"
+                               .format(acc_id, sens_id))
             return True
     except exc.SQLAlchemyError:
         return False
@@ -51,11 +59,12 @@ def get_alert_type(acc_id, sens_id):
         with db.engine.connect() as connection:
             alert_type = []
             result = connection.execute(
-                "select alertEmail, alertPhone from alerts where accountID = {} and sensorID = '{}'".format(acc_id,
-                                                                                                            sens_id))
+                "select alertEmail, alertPhone "
+                "from alerts "
+                "where accountID = {} and sensorID = '{}'"
+                .format(acc_id, sens_id))
             for row in result:
                 alert_type.append(row)
             return alert_type[0]
     except exc.SQLAlchemyError:
         return False
-
