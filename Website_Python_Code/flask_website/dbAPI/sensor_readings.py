@@ -1,5 +1,5 @@
 from sqlalchemy import exc
-import flask_website.dbAPI.db as db
+import Website_Python_Code.flask_website.dbAPI.db as db
 
 
 class SensorReadings(db.Base):
@@ -10,7 +10,10 @@ def get_sensor_data_points(sens_id):
     try:
         with db.engine.connect() as connection:
             data = []
-            result = connection.execute("select * from sensor_readings where sensorID = '{}'".format(sens_id))
+            result = connection.execute("select * "
+                                        "from sensor_readings "
+                                        "where sensorID = '{}'"
+                                        .format(sens_id))
             for row in result:
                 data.append(row)
             return data
@@ -22,9 +25,12 @@ def get_sensor_battery(sens_id):
     try:
         with db.engine.connect() as connection:
             battery = ""
-            result = connection.execute(
-                "select batteryLevel from sensor_readings where sensorID = '{}' order by recordNumber desc limit 1".format(
-                    sens_id))
+            result = connection.execute("select batteryLevel "
+                                        "from sensor_readings "
+                                        "where sensorID = '{}' "
+                                        "order by recordNumber "
+                                        "desc limit 1"
+                                        .format(sens_id))
             for row in result:
                 battery = row['batteryLevel']
             return battery
@@ -36,9 +42,11 @@ def get_liquid_level(sens_id):
     try:
         with db.engine.connect() as connection:
             liquid = 0
-            result = connection.execute(
-                "select liquidLevel from sensor_readings where sensorID = '{}' order by recordNumber desc limit 1".format(
-                    sens_id))
+            result = connection.execute("select liquidLevel "
+                                        "from sensor_readings "
+                                        "where sensorID = '{}' "
+                                        "order by recordNumber "
+                                        "desc limit 1".format(sens_id))
             for row in result:
                 liquid = row['liquidLevel']
             return liquid
