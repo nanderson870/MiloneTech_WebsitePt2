@@ -78,23 +78,6 @@ def get_status_by_id(account_id):
     return account_status
 
 
-'''
-    Quick work around made by Isaac.
-'''
-
-
-def get_id_by_email(account_id):
-    with db.engine.connect() as connection:
-        account_status = []
-        result = connection.execute("select accountEmail "
-                                    "from accounts "
-                                    "where accountID = {}"
-                                    .format(account_id))
-        for row in result:
-            account_status.append(row['accountStatus'])
-    return account_status
-
-
 def create_account(email, first_name, last_name, pass_hash):
     try:
         with db.engine.connect() as connection:
