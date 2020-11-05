@@ -21,6 +21,10 @@ def check_alerts(acc_id, sens_id):
         return False
 
 
+# add elif for more thorough checking. want to be able to have multiple alerts for different values of same accId/sensID
+# right now it checks to see if there are currently no alerts for acc/sensor. if so add an alert, otherwise update
+# existing alert to contain new alert details. need to be more specific in checking. potentially check if the trigger
+# levels are the same. i'll do this soon 11/5/20
 def add_sensor_alert(acc_id, sens_id, trigger, email_alert, phone_alert):
     try:
         with db.engine.connect() as connection:
