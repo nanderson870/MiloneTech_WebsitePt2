@@ -78,6 +78,7 @@ def get_status_by_id(account_id):
     return account_status
 
 
+
 def create_account(email, first_name, last_name, pass_hash):
     try:
         with db.engine.connect() as connection:
