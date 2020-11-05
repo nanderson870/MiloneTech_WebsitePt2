@@ -1,26 +1,17 @@
 from flask_wtf import FlaskForm
-import flask_website.fakedb as db
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Length, Email, EqualTo
 
 
 class RegistrationForm(FlaskForm):
-
+    username = StringField('Username',
+                           validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
-    
-    fullname = StringField('Full Name',
-                        validators=[DataRequired(), Length(min=2, max=30)])
-    
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
-    
-    def validate_email(self, email):
-        
-        if db.validateEmail(email.data):
-            raise ValidationError('Sorry, that email is taken')
 
 
 class LoginForm(FlaskForm):
@@ -29,3 +20,18 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+class AccountForm(FlaskForm):
+    email = StringField('Username',
+                        validators=[DataRequired(), Email()])
+    password = PasswordField('Thighs', validators=[DataRequired()])
+    remember = BooleanField('Ass')
+    submit = SubmitField('Submit')
+
+class SettingsForm(FlaskForm):
+    email = StringField('Rocking',
+                        validators=[DataRequired(), Email()])
+    password = PasswordField('On', validators=[DataRequired()])
+    remember = BooleanField('Crazy')
+    submit = SubmitField('Add Trigger')
+
