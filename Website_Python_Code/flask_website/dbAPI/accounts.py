@@ -15,7 +15,7 @@ def get_id_by_email(acc_email):
                                     .format(acc_email))
         for row in result:
             acc_id.append(row[acc_id])
-        return acc_id[0]
+        return acc_id
 
 
 def get_email_by_id(account_id):

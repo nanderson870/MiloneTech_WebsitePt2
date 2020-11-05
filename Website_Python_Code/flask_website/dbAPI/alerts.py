@@ -68,4 +68,3 @@ def get_alert_type(acc_id, sens_id):
             return alert_type[0]
     except exc.SQLAlchemyError:
         return False
-
