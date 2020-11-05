@@ -6,9 +6,9 @@ import base64
 import json
 
 from matplotlib.pyplot import figure
-from flask_website.forms import RegistrationForm, LoginForm
+from Website_Python_Code.flask_website.forms import RegistrationForm, LoginForm
 
-from flask_website import app, bcrypt, db
+from Website_Python_Code.flask_website import app, bcrypt, db
 
 
 

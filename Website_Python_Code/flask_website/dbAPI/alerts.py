@@ -25,12 +25,11 @@ def add_sensor_alert(acc_id, sens_id, trigger, email_alert, phone_alert):
     try:
         with db.engine.connect() as connection:
             checker = check_alerts(acc_id, sens_id)
-            if checker == 0 or not checker:
+            if len(checker) == 0 or not checker:
                 connection.execute(
                     "insert into alerts "
                     "values ({}, '{}', {}, {}, {})"
-                    .format(acc_id, sens_id, trigger, email_alert,
-                                                                              phone_alert))
+                    .format(acc_id, sens_id, trigger, email_alert, phone_alert))
                 return True
             else:
                 connection.execute(
