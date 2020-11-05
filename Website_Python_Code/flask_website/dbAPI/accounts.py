@@ -6,6 +6,18 @@ class Accounts(db.Base):
     __table__ = db.Base.metadata.tables['accounts']
 
 
+def get_id_by_email(acc_email):
+    with db.engine.connect() as connection:
+        acc_id = []
+        result = connection.execute("select accountID "
+                                    "from accounts "
+                                    "where accountEmail = '{}'"
+                                    .format(acc_email))
+        for row in result:
+            acc_id.append(row[acc_id])
+        return acc_id[0]
+
+
 def get_email_by_id(account_id):
     with db.engine.connect() as connection:
         email = []
