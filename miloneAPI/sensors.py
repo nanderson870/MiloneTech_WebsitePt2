@@ -29,6 +29,7 @@ def add_sensor_to_account(sens_id, email):
 
 
 def get_all_sensors(acc_id):
+    
     try:
         with db.engine.connect() as connection:
             sens = []
