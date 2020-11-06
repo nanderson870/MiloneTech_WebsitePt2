@@ -9,14 +9,14 @@ class Alerts(db.Base):
 def check_alerts(acc_id, sens_id):
     try:
         with db.engine.connect() as connection:
-            existing_alerts = []
+            checker = []
             result = connection.execute("select * "
                                         "from alerts "
                                         "where accountID = {} and sensorID = '{}'"
                                         .format(acc_id, sens_id))
             for row in result:
-                existing_alerts.append(row)
-            return existing_alerts
+                checker.append(row)
+            return checker
     except exc.SQLAlchemyError:
         return False
 
@@ -34,6 +34,8 @@ def add_sensor_alert(acc_id, sens_id, trigger, email_alert, phone_alert):
                     "insert into alerts "
                     "values ({}, '{}', {}, {}, {})"
                     .format(acc_id, sens_id, trigger, email_alert, phone_alert))
+                return True
+            elif checker[2] == trigger and checker[3] == email_alert and checker[4] == phone_alert:
                 return True
             else:
                 connection.execute(

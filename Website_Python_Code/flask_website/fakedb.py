@@ -5,16 +5,20 @@
     
     For testing purposes with flask app.
 '''
+
+
 import json
 
 usersData, sensorsData, sensorReadingsData = None, None, None
 
+
 def fakedb_init():
     
     global usersData, sensorsData, sensorReadingsData
-    
+
+
 if not usersData:
-    with open("flask_website/json/fake_users.json","r") as f:
+    with open("Website_Python_Code.flask_website/json/fake_users.json","r") as f:
         usersData = json.load(f)
     
     with open("flask_website/json/fake_sensors.json","r") as f:
@@ -22,6 +26,7 @@ if not usersData:
         
     with open("flask_website/json/fake_sensor_readings.json","r") as f:
         sensorReadingsData = json.load(f)
+
 
 def getUserPassword(targetEmail):
     
@@ -31,7 +36,8 @@ def getUserPassword(targetEmail):
     
     return "$2b$12$mE3X.vIwpjlryiuGTBX17OqdautRHtG3cpPSF/zrgJWLmGXoANZIO"
 
-def createNewAccount(accountEmail,password,name):
+
+def createNewAccount(accountEmail, password, name):
     
     for user in usersData:
         if user["email"] == accountEmail:
@@ -49,6 +55,7 @@ def createNewAccount(accountEmail,password,name):
     with open("flask_website/json/fake_users.json","w") as f:
         json.dump(usersData, f, indent="\t")
 
+
 def validateEmail(targetEmail):
     
     for user in usersData:
@@ -57,6 +64,7 @@ def validateEmail(targetEmail):
         
     return False
 
+
 def getPaymentTier(targetEmail):
     
     for user in usersData:
@@ -64,6 +72,7 @@ def getPaymentTier(targetEmail):
             return user["is_paid"]
     
     return False
+
 
 def setPaymentTier(targetEmail, newTier):
     
@@ -78,6 +87,7 @@ def setPaymentTier(targetEmail, newTier):
     
     return False
 
+
 def getAllSensors(targetEmail):
     
     for user in usersData:
@@ -85,6 +95,7 @@ def getAllSensors(targetEmail):
             return user["owns"]
     
     return False
+
 
 def setSensorInfo(sensorID, newReading, newBattery, timeStamp):
     
@@ -116,6 +127,7 @@ def getSensorInfo(targetSensor):
         
     return False
 
+
 def getSensorDataPoints(targetSensor):
     
     returned = {}
@@ -131,6 +143,7 @@ def getSensorDataPoints(targetSensor):
         
     return False
 
+
 def getSensorBattery(targetSensor):
     
     for sensor in sensorReadingsData:
@@ -139,6 +152,7 @@ def getSensorBattery(targetSensor):
             return sensor["battery_level"]
         
     return False
+
 
 def setUserPassword(targetEmail,newPassword):
     
@@ -152,6 +166,7 @@ def setUserPassword(targetEmail,newPassword):
             return True
         
     return False
+
 
 def addSensorToAccount(targetEmail,targetSensor):
     
@@ -167,6 +182,7 @@ def addSensorToAccount(targetEmail,targetSensor):
         
     return False 
 
+
 def setSensorName(targetSensor,newName):
     
     for sensor in sensorReadingsData:
@@ -180,6 +196,7 @@ def setSensorName(targetSensor,newName):
         
     return False
 
+
 def setSensorGroup(targetSensor,newGroup):
     
     for sensor in sensorReadingsData:
@@ -192,7 +209,8 @@ def setSensorGroup(targetSensor,newGroup):
             return True
         
     return False
-    
+
+
 if __name__ == "__main__":
     from pprint import pprint 
     pprint(usersData)
