@@ -1,3 +1,8 @@
+#from moda import funca
+#funca()
+#exit(0)
+
+
 from flask_website import app
 
 import os

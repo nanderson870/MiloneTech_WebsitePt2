@@ -1,22 +1,21 @@
 from sqlalchemy import exc
-import Website_Python_Code.flask_website.dbAPI.db as db
+import db
 
 
 class Accounts(db.Base):
     __table__ = db.Base.metadata.tables['accounts']
 
 
-def get_id_by_email(acc_email):
+def get_id_by_email(acc_id):
     with db.engine.connect() as connection:
-        acc_id = []
+        id = 0
         result = connection.execute("select accountID "
                                     "from accounts "
                                     "where accountEmail = '{}'"
-                                    .format(acc_email))
+                                    .format(acc_id))
         for row in result:
-            acc_id.append(row[acc_id])
-        return acc_id
-
+            id = row['accountID']
+    return id
 
 def get_email_by_id(account_id):
     with db.engine.connect() as connection:
@@ -83,15 +82,16 @@ def get_status_by_id(account_id):
 '''
 
 
-def get_id_by_email(account_id):
+def get_id_by_email(account_email):
+    
     with db.engine.connect() as connection:
         account_status = []
-        result = connection.execute("select accountEmail "
+        result = connection.execute("select accountID "
                                     "from accounts "
-                                    "where accountID = {}"
-                                    .format(account_id))
+                                    "where accountEmail = {}"
+                                    .format(account_email))
         for row in result:
-            account_status.append(row['accountStatus'])
+            account_status.append(row['accountID'])
     return account_status
 
 

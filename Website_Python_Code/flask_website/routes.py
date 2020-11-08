@@ -57,9 +57,14 @@ def login():
     form = LoginForm()
     
     if form.validate_on_submit():
-        if bcrypt.check_password_hash(db.getUserPassword(form.email.data), form.password.data):
+        
+        id = db.accounts.get_id_by_email(form.email.data)
+        print(id)
+        print(type(id))
+        
+        if bcrypt.check_password_hash(db.accounts.get_pass_by_id(id), 
+                                      form.password.data):
             flash('You have been logged in!', 'success')
-            targetEmail = str(form.email.data)
             return redirect(url_for('home'))
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')

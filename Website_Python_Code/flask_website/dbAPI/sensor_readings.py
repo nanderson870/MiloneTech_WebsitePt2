@@ -1,5 +1,5 @@
 from sqlalchemy import exc
-import Website_Python_Code.flask_website.dbAPI.db as db
+import flask_website.dbAPI.db as db
 
 
 class SensorReadings(db.Base):
