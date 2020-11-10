@@ -1,0 +1,38 @@
+
+    {% if account_info.payment_tier == 1 %}
+
+        {% for sensor_group in account_info.sensor_data %}
+
+            {% for sensor in sensor_group.group_data %}
+
+                <article class="media content-section">
+
+                  <div class="media-body">
+
+                  <h2>{{ sensor.sensorID }}</h2>
+                  <img src="{{ sensor.image }}"/>
+                  <h3>Battery Level: {{ sensor.battery_level }}</h3>
+
+                  </div>
+                </article>
+
+            {% endfor %}
+
+        {% endfor %}
+
+    {% elif %}
+
+        {% for sensorData in account_info %}
+
+            <article class="media content-section">
+
+              <div class="media-body">
+              <h2>{{ sensorData.sensorID }}</h2>
+              <img src="{{ sensorData.image }}"/>
+              </div>
+
+            </article>
+
+        {% endfor %}
+
+    {% endif %}

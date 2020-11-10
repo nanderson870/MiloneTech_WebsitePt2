@@ -4,98 +4,105 @@ from matplotlib.figure import Figure
 import io
 import base64
 import json
-
 from matplotlib.pyplot import figure
 from flask_website.forms import RegistrationForm, LoginForm
+from flask_website import app, bcrypt, db, login_manager
 
-from flask_website import app, bcrypt, db
+from flask_login import login_user, current_user, logout_user, login_required, UserMixin
 
+class User(UserMixin):
+    def __init__(self, userID):
+        self.id = userID
+        self.email = db.accounts.get_email_by_id(userID)[0]
 
-
-exampleSensorData = [
-    {
-        "sensorID":"157.111.521.457",
-        "sensorName":"Water Tank",
-        "groupString":"WaterTankers",
-        "batteryLevel":"80%",
-        "typeOfSensor":"water",
-        
-        "x" : [1,2,3,4,5,6], 
-        "y" : [0.80,0.0,0.70,0.0,0.60,0.55], 
-  
-    },
-    {
-        "sensorID":"455.999.521.457",
-        "sensorName":"Vat of Acid",
-        "groupString":"WaterTankers",
-        "batteryLevel":"75%",
-        "typeOfSensor":"chemical",
-        
-        "x" : [1,2,3,4,5,6], 
-        "y" : [0.80,0.50,0.50,0.70,0.20,0.15] 
-  
-    },
-    {
-        "sensorID":"455.999.521.457",
-        "sensorName":"Showing Chu",
-        "groupString":"WaterTankers",
-        "batteryLevel":"75%",
-        "typeOfSensor":"chemical",
-        
-        "x" : [1,2,3,4,5,6], 
-        "y" : [0.0,0.90,0.50,0.70,0.20,0.0] 
-  
-   }
-    
-]
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    
-    global targetEmail
+
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
     form = LoginForm()
-    
+
     if form.validate_on_submit():
-        if bcrypt.check_password_hash(db.getUserPassword(form.email.data), form.password.data):
+
+        userID = db.accounts.get_id_by_email(form.email.data)[0]
+        user = User(userID)
+
+
+        if user and bcrypt.check_password_hash( db.accounts.get_pass_by_id(userID)[0], form.password.data):
+
+            print("almost there")
+            login_user(user, remember=form.remember.data)
             flash('You have been logged in!', 'success')
-            targetEmail = str(form.email.data)
+
             return redirect(url_for('home'))
+
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
             
     return render_template('login.html', title='Login', form=form)
 
 @app.route("/home")
+@login_required
 def home():
-    
-    global targetEmail
-    currUserSensors = []
-    currUserSensorData = []
-    
-    
-    if targetEmail != "":
-        currUserSensors = db.getAllSensors(targetEmail)
-    else:
-        currUserSensors = ["001"]
-    
-    print(currUserSensors)
-     
-    for i in range(0,len(currUserSensors)):
-        
-        
-        currUserSensorData.append(db.getSensorDataPoints(currUserSensors[i]))
-    
 
-    print(currUserSensorData)
+    '''
+    STRUCTURE FOR user data
+
+    {   "user_name": "__USERNAME__"
+        "payment_tier": "__0/1__"
+        "sensor_data": [
+            "sensor_grouping": "__GROUP1__"
+            "group_data": [
+                "sensor_id":__SENSID__
+                "sensor_name":__SENSNAME__
+                "x_vals":[__READINGTIMES__]
+                "y_vals":[__SENSORREADS__]
+                "bat_level":__BATLEV__
+                ,
+                .
+                .
+                ]
+            ,
+            "sensor_grouping": "__GROUP2__"
+            group_data": [
+                "sensor_id":__SENSID__
+                "sensor_name":__SENSNAME__
+                "x_vals":[__READINGTIMES__]
+                "y_vals":[__SENSORREADS__]
+                "bat_level":__BATLEV__
+                ,
+                .
+                .
+                ]
+            ]
+    }
+    '''
+
     #CODE FOR GENERATING THE PLOTS
-    
-    for i in range(0,len(currUserSensorData)):
+    currUserSensorData = []
+
+    curr_user_sensors = db.sensors.get_all_sensors(current_user.id)
+    print(curr_user_sensors)
+
+    curr_user_sensor_data = []
+    for sens in curr_user_sensors:
+        curr_user_sensor_data.append(db.sensor_readings.get_sensor_data_points(sens))
+
+    print(curr_user_sensor_data)
+
+
+    for i in range(0,0):
     
         fig = Figure()
         plt = fig.add_subplot(1,1,1)
         
-        targetSensorData = exampleSensorData[i]
+        targetSensorData = curr_user_sensor_data[i]
         plt.set_ylim(0,1)
         plt.set_xlim(0,6)
         # naming the x axis 
@@ -119,18 +126,25 @@ def home():
         
     
     
-    return render_template('home.html', exampleSensorData=currUserSensorData)
+    return render_template('home.html', account_info=curr_user_sensor_data)
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-    
-    global db
+
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+
     form = RegistrationForm()
     
     if form.validate_on_submit():
         
         hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        db.createNewAccount(accountEmail = form.email.data, password = hashed_pass, name = form.fullname.data)
+
+        fullname = form.name.data.split()
+        firstname = fullname[0]
+        lastname = fullname[-1]
+
+        db.accounts.create_account(form.email.data,firstname,lastname,hashed_pass)
         
         flash(f'Your account has been Created! You may now Login', 'success')
         return redirect(url_for('login'))
@@ -148,7 +162,9 @@ def sensor():
     return "OK"
 
 @app.route("/account", methods=['GET', 'POST'])
+@login_required
 def account():
+
     form = AccountForm()
     if form.validate_on_submit():
         if db.getUserPassword(form.email.data) == form.password.data:
@@ -161,7 +177,9 @@ def account():
 
 
 @app.route("/settings", methods=['GET', 'POST'])
+@login_required
 def settings():
+
         form = SettingsForm()
         if form.validate_on_submit():
                 if db.getUserPassword(form.email.data) == form.password.data:
@@ -171,3 +189,9 @@ def settings():
                         flash('Login Unsuccessful. Please check username and password', 'danger')
 
         return render_template('settings.html', title='Settings', form=form)
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))

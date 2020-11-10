@@ -1,5 +1,5 @@
 from sqlalchemy import exc
-import Website_Python_Code.flask_website.dbAPI.db as db
+from . import db
 
 
 class Accounts(db.Base):
@@ -7,14 +7,18 @@ class Accounts(db.Base):
 
 
 def get_id_by_email(acc_email):
+
     with db.engine.connect() as connection:
         acc_id = []
         result = connection.execute("select accountID "
                                     "from accounts "
                                     "where accountEmail = '{}'"
                                     .format(acc_email))
+        print(result)
         for row in result:
-            acc_id.append(row[acc_id])
+            print(row)
+            acc_id.append(row[0])
+
         return acc_id
 
 
@@ -61,8 +65,12 @@ def get_pass_by_id(account_id):
                                     "from accounts "
                                     "where accountID = {}"
                                     .format(account_id))
+        print(result)
         for row in result:
-            pass_hash.append(row['passwordHash'])
+            print(row)
+            print(type(row))
+            print(type(row[0]))
+            pass_hash.append(row[0])
     return pass_hash
 
 

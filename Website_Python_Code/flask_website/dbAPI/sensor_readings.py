@@ -1,6 +1,5 @@
 from sqlalchemy import exc
-import Website_Python_Code.flask_website.dbAPI.db as db
-
+from . import db
 
 class SensorReadings(db.Base):
     __table__ = db.Base.metadata.tables['sensor_readings']
@@ -17,6 +16,7 @@ def get_sensor_data_points(sens_id):
             for row in result:
                 data.append(row)
             return data
+
     except exc.SQLAlchemyError:
         return False
 

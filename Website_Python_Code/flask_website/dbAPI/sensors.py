@@ -1,5 +1,5 @@
 from sqlalchemy import exc
-import Website_Python_Code.flask_website.dbAPI.db as db
+from . import db
 
 
 class Sensors(db.Base):
@@ -40,7 +40,9 @@ def get_all_sensors(acc_id):
                                         "from sensors "
                                         "where accountID = {}"
                                         .format(acc_id))
+            print(result)
             for row in result:
+                print(row)
                 sens.append(row['sensorID'])
             return sens
     except exc.SQLAlchemyError:
