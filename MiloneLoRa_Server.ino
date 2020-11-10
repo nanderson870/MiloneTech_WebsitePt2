@@ -454,32 +454,66 @@ void setup() {
     }
 
     loraMillis = previousMillis = currentMillis = millis();
-
 }
 
 void postData() {
+    const char* hostGet = "http://ptsv2.com";
+    WiFiClient clientGet;
+    const int httpGetPort = 80;
+//    char request[2048];
+//    int rx_cnt = 0;
+    //the path and file to send the data to:
+    String urlGet = " /t/sensor/post";
+//    while (clientGet.available()) { // if there's bytes to read from the client,
+//        c = client.read();             // read a byte, then
+//
+//        request[rx_cnt++] = c;
+//        //Serial.print(c);
+//
+//    }
 
-    // Prepare JSON document
-    DynamicJsonDocument doc(2048);
-    doc["hello"] = "world";
+    Serial.print(">>> Connecting to host: ");
+    Serial.println(hostGet);
 
-// Serialize JSON document
-    String json;
-    serializeJson(doc, json);
+    if (!clientGet.connect(hostGet,httpGetPort)) {
+        Serial.print("Connection failed: ");
+        Serial.print(hostGet);
+    } else {
+        clientGet.println("GET " + urlGet + " HTTP/1.1");
+        clientGet.print("Host: ");
+        clientGet.println(hostGet);
+        clientGet.println("User-Agent: ESP8266/1.0");
+        clientGet.println("Connection: close\r\n\r\n");
 
-    HTTPClient http;
+        unsigned long timeoutP = millis();
+        while (clientGet.available() == 0) {
 
-// Send request
-    http.begin("http://httpbin.org/post");
-    http.POST(json);
+            if (millis() - timeoutP > 10000) {
+                Serial.print(">>> Client Timeout: ");
+                Serial.println(hostGet);
+                clientGet.stop();
+                return;
+            }
+        }
 
-// Read response
-    Serial.print(http.getString());
 
-// Disconnect
-    http.end();
+        //just checks the 1st line of the server response. Could be expanded if needed.
+        while(clientGet.available()){
+            String retLine = clientGet.readStringUntil('\r');
+            Serial.println(retLine);
+            break;
+        }
+
+    } //end client connection if else
+
+    Serial.print(">>> Closing host: ");
+    Serial.println(hostGet);
+
+    clientGet.stop();
 
 }
+
+
 
 void loop() {
 
@@ -847,7 +881,7 @@ void loop() {
                 Serial.println("============ request! ===========");
                 Serial.print(request);
                 Serial.println("============ /request! ===========");
-                postData();
+
 
                 if (StartsWith(request, "GET / ")) {
                     strcat(outbuff, "HTTP/1.1 200 OK\r\n");
@@ -1440,6 +1474,7 @@ void loop() {
             }
 
         }
+        postData();
 
         Serial.println("web client disconnected");
     }
