@@ -25,7 +25,7 @@ class LoginForm(FlaskForm):
 class AccountForm(FlaskForm):
     email = StringField('Username',
                         validators=[DataRequired(), Email()])
-    password = PasswordField('Thighs', validators=[DataRequired()])
+    password = PasswordField('SensorID', validators=[DataRequired()])
     remember = BooleanField('Ass')
     submit = SubmitField('Submit')
 

@@ -1,10 +1,47 @@
 {% extends "layout_with_sidebar.html" %}
 {% block content %}
 
-<!--
+    {% if account_info.payment_tier == 1 %}
 
+            {% for groupname, group in account_info.sensor_data.items() %}
 
+            <div> <h3> GROUP: {{ groupname }} </h3>
 
--->
+                {% for sensorID, sensor in group.items() %}
+
+                    <article class="media content-section">
+
+                      <div class="media-body">
+
+                      <h3>{{ sensor.name }}</h3>
+                      <img src="{{ sensor.image }}"/>
+                      <h3>Battery Level: {{ sensor.bat_level }} %</h3>
+
+                      </div>
+                    </article>
+
+                {% endfor %}
+
+                </div>
+            {% endfor %}
+
+{% else %}
+
+        {% for sensor in account_info.sensor_data %}
+
+            <article class="media content-section">
+
+              <div class="media-body">
+                  <h3> <b>{{ sensor.name }}</b><br><br> Level: {{ sensor.y_vals[-1] }}</h3>
+
+               <h3>Battery Level: {{ sensor.bat_level }} %</h3>
+
+              </div>
+
+            </article>
+
+        {% endfor %}
+
+    {% endif %}
 
 {% endblock content %}

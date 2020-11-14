@@ -1,9 +1,30 @@
 from sqlalchemy import exc
 from . import db
+from . import sensors
 
 class SensorReadings(db.Base):
     __table__ = db.Base.metadata.tables['sensor_readings']
 
+def add_reading_no_time(sens_id, liquid, battery, rssi):
+    try:
+        with db.engine.connect() as connection:
+            connection.execute("insert into sensor_readings "
+                               "values (default, {}, '{}', {}, {}, default, {})"
+                               .format(sensors.get_acc_id_by_sens_id(sens_id), sens_id, liquid, battery, rssi))
+            return True
+    except exc.SQLAlchemyError:
+        return False
+
+
+def add_reading_yes_time(sens_id, liquid, battery, time_stamp, rssi):
+    try:
+        with db.engine.connect() as connection:
+            connection.execute("insert into sensor_readings "
+                               "values (default, {}, '{}', {}, {}, {}, {})"
+                               .format(sensors.get_acc_id_by_sens_id(sens_id), sens_id, liquid, battery, time_stamp, rssi))
+            return True
+    except exc.SQLAlchemyError:
+        return False
 
 def get_sensor_data_points(sens_id):
     try:

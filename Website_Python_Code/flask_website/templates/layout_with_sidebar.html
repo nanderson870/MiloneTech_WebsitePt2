@@ -20,9 +20,9 @@
             <h3>Navigation</h3>
             <p class='text-muted'>Select the page you want to go to
               <ul class="list-group">
-                <li class="list-group-item list-group-item-light">Main Page</li>
-                <li class="list-group-item list-group-item-light">Account Info</li>
-                <li class="list-group-item list-group-item-light">Settings</li>
+                <li class="list-group-item list-group-item-light"><a  href="{{ url_for('home') }}">Main Page</a></li>
+            <li class="list-group-item list-group-item-light"><a  href="{{ url_for('account') }}">Account Info</a></li>
+                <li class="list-group-item list-group-item-light"><a  href="{{ url_for('settings') }}">Settings</a></li>
               </ul>
             </p>
           </div>
