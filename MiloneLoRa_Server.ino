@@ -1,8 +1,3 @@
-
-
-#include <b64.h>
-#include <HttpClient.h>
-
 /*[
 
  Milone Wifi+LoRa Web Server
@@ -12,10 +7,9 @@
 
 
  */
-#include <ArduinoMqttClient.h>
-#include <ArduinoECCX08.h>
-#include <ArduinoBearSSL.h>
-#include <ArduinoCloudProviderExamples.h>
+#include <b64.h>
+#include <HttpClient.h>
+#include <ArduinoHttpClient.h>
 #include <SPI.h>
 #include <WiFi101.h>
 #include <SD.h>
@@ -34,6 +28,7 @@
 #define MAX_CLIENTS 16
 #define RECORD_TIMEOUT_SECS 43200
 #define SERVER_RESTART_DURATION (60000*30)  //30 minutes in ms
+#define delayMillis 5000UL // Added by Ethan A.
 
 ///* Feather m0 w/wing 
 #define RFM95_RST     11   // "A"
@@ -45,6 +40,17 @@
 
 int led = LED_BUILTIN;
 int status = WL_IDLE_STATUS;
+//Change to your server domain
+char serverName[] = "www.ptsv2.com"; //Added by Ethan A.
+// change to your server's port
+int serverPort = 80; //Added by Ethan A.
+// change to the page on that server
+char pageName[] = "/t/sensor/post"; //Added by Ethan A.
+unsigned long thisMillis = 0; //Added by Ethan A.
+unsigned long lastMillis = 0; //Added by Ethan A.
+char bodyBuff[400];
+WiFiClient clientPOST;
+
 WiFiServer server(80);
 
 WiFiServer *sensor;
@@ -225,7 +231,7 @@ void setup() {
 
     // check for the presence of the shield:
     if (WiFi.status() == WL_NO_SHIELD) {
-//    Serial.println("WiFi shield not present");
+    Serial.println("WiFi shield not present");
         // don't continue
         while (true);
     }
@@ -456,63 +462,6 @@ void setup() {
     loraMillis = previousMillis = currentMillis = millis();
 }
 
-void postData() {
-    const char* hostGet = "http://ptsv2.com";
-    WiFiClient clientGet;
-    const int httpGetPort = 80;
-//    char request[2048];
-//    int rx_cnt = 0;
-    //the path and file to send the data to:
-    String urlGet = " /t/sensor/post";
-//    while (clientGet.available()) { // if there's bytes to read from the client,
-//        c = client.read();             // read a byte, then
-//
-//        request[rx_cnt++] = c;
-//        //Serial.print(c);
-//
-//    }
-
-    Serial.print(">>> Connecting to host: ");
-    Serial.println(hostGet);
-
-    if (!clientGet.connect(hostGet,httpGetPort)) {
-        Serial.print("Connection failed: ");
-        Serial.print(hostGet);
-    } else {
-        clientGet.println("GET " + urlGet + " HTTP/1.1");
-        clientGet.print("Host: ");
-        clientGet.println(hostGet);
-        clientGet.println("User-Agent: ESP8266/1.0");
-        clientGet.println("Connection: close\r\n\r\n");
-
-        unsigned long timeoutP = millis();
-        while (clientGet.available() == 0) {
-
-            if (millis() - timeoutP > 10000) {
-                Serial.print(">>> Client Timeout: ");
-                Serial.println(hostGet);
-                clientGet.stop();
-                return;
-            }
-        }
-
-
-        //just checks the 1st line of the server response. Could be expanded if needed.
-        while(clientGet.available()){
-            String retLine = clientGet.readStringUntil('\r');
-            Serial.println(retLine);
-            break;
-        }
-
-    } //end client connection if else
-
-    Serial.print(">>> Closing host: ");
-    Serial.println(hostGet);
-
-    clientGet.stop();
-
-}
-
 
 
 void loop() {
@@ -528,7 +477,9 @@ void loop() {
     status = WiFi.status();
 
     while (status != WL_CONNECTED) {
-        Serial.print("WiFi Status: DISCONNECTED. Trying to connect...");
+        Serial.print("====Trying to connect to ");
+        Serial.println(wifiSSID);
+        
 
         // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
         status = WiFi.begin(wifiSSID, wifiPass);
@@ -542,7 +493,7 @@ void loop() {
             server_subnet.fromString(sSubnet);
             server_dns.fromString(sDNS);
             WiFi.config(server_ip, server_dns, server_gateway, server_subnet);
-            Serial.println(" CONNECTED :)");
+            Serial.println("WiFi Status: CONNECTED :)");
             Serial.println("Waiting 5 seconds for connection to stabilize...");
             delay(5000);
 
@@ -551,6 +502,7 @@ void loop() {
             rtc.setEpoch(WiFi.getTime());
 
             Serial.println("Starting webpage server!");
+            
 
             server.begin();
         } else {
@@ -676,7 +628,7 @@ void loop() {
 
                 // if the new record hasn't been inserted, find an available slot
                 if (!inserted) {
-                    Serial.println("inserting");
+                    Serial.println("====inserting====");
 
                     uint16_t cal0;
                     uint16_t cal25;
@@ -788,9 +740,10 @@ void loop() {
 
                         break;  // no need to search more
                     }
+           //         postData();
                 } // end if inserted (dirty joke here...)
 
-                Serial.println("done inserting");
+                Serial.println("====done inserting====");
 
             } else {
                 Serial.println("Receive failed");
@@ -881,7 +834,6 @@ void loop() {
                 Serial.println("============ request! ===========");
                 Serial.print(request);
                 Serial.println("============ /request! ===========");
-
 
                 if (StartsWith(request, "GET / ")) {
                     strcat(outbuff, "HTTP/1.1 200 OK\r\n");
@@ -1251,6 +1203,7 @@ void loop() {
                     client.println();
                     client.stop();
                 } else if (StartsWith(request, "POST / ")) {
+                    
                     uint16_t cal0, cal25, cal50, cal75, cal100;
                     char sensorName[33];
                     char sensorId[17];
@@ -1474,10 +1427,155 @@ void loop() {
             }
 
         }
-        postData();
-
+        // postData();
         Serial.println("web client disconnected");
     }
 
     digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+}
+
+
+byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
+{
+//  WiFiClient clientPOST;
+  int inChar;
+  char outBuf[64];
+  int stringLength;
+
+  Serial.print(F("====Connecting to server===="));
+  Serial.println("Trying to send A JSON");
+
+  if(clientPOST.connect(domainBuffer,thisPort) == 1)
+  {
+    Serial.println(F("connected"));
+
+    // send the header
+    sprintf(outBuf,"POST %s HTTP/1.1",page);
+    clientPOST.println(outBuf);
+    sprintf(outBuf,"Host: %s",domainBuffer);
+    clientPOST.println(outBuf);
+    clientPOST.println(F("Connection: close\r\nContent-Type: application/json"));
+    clientPOST.println("User-Agent: Adafruit Feather M0 WiFi - ATSAMD21 + ATWINC1500");
+    stringLength = strlen(thisData);
+    sprintf(outBuf,"Content-Length: %u\r\n",stringLength);
+    clientPOST.println(outBuf);
+    // send the body (variables)
+    clientPOST.print(thisData);
+  }
+  else
+  {
+    Serial.println(F("failed"));
+    Serial.println("====CANT SEND DAT BIH OUT====");
+    return 0;
+  }
+
+  int connectLoop = 0;
+
+  while(clientPOST.connected())
+  {
+    while(clientPOST.available())
+    {
+      
+      inChar = clientPOST.read();
+      Serial.write(inChar);
+      connectLoop = 0;
+    }
+    delay(1);
+    connectLoop++;
+    if(connectLoop > 10000)
+    {
+      Serial.println();
+      Serial.println(F("Timeout"));
+      clientPOST.stop();
+    }
+  }
+  Serial.println();
+  Serial.println(F("disconnecting."));
+  clientPOST.stop();
+  return 1;
+}
+
+void postData() //Added by Ethan A.
+{
+//  char tmp[256];
+//    for (int i = 0; i < MAX_RECORDS; i++) {
+//      if (records[i].valid) {
+//         strcat(bodyBuff, "[ \n");
+//         strcat(bodyBuff, "{ \n");
+//         // Entry #
+//         itoa(i, tmp, 10);
+//         strcat(bodyBuff, "Entry # :");  //entry number
+//         strcat(bodyBuff, tmp);
+//         strcat(bodyBuff, ",\n");
+//
+//         // Sensor ID #
+//         strcat(bodyBuff, "Sensor ID :");
+//         strcat(bodyBuff, records[i].id);  // client id
+//         strcat(bodyBuff, ",\n");
+//
+//         // Sensor Name
+//         strcat(bodyBuff, "Name :");
+//         strcat(bodyBuff, records[i].name);  // client id
+//         strcat(bodyBuff, ",\n");
+//
+//         strcat(bodyBuff, "Liquid % :");
+//         memset(tmp, 0, sizeof(tmp));
+//         sprintf(tmp, "%d", records[i].reading);
+//         strcat(bodyBuff, tmp);  // sensor reading
+//         strcat(bodyBuff, ",\n");
+//
+//         strcat(bodyBuff, "Battery % :");
+//         memset(tmp, 0, sizeof(tmp));
+//         sprintf(tmp, "%d", records[i].batteryPercentage);
+//         strcat(bodyBuff, tmp);  // battery voltage
+//         strcat(bodyBuff, ",\n");
+//
+//         // Sensor RSSI
+//         strcat(bodyBuff, "RSSI :");
+//         memset(tmp, 0, sizeof(tmp));
+//         sprintf(tmp, "%d", records[i].rssi);
+//         strcat(bodyBuff, tmp);  // battery voltage
+//         strcat(bodyBuff, ",\n");
+//
+//         strcat(bodyBuff, "Time Stamp :");
+//         strcat(bodyBuff, ctime(&records[i].timestamp));
+//         strcat(bodyBuff, "\n");
+//         strcat(bodyBuff, "} \n");
+//         strcat(bodyBuff, "] \n");
+//     }
+// }
+// for (int i = 0; i < strlen(bodyBuff);) {
+//     if ((strlen(bodyBuff) - i) > 1400) {
+//         clientPOST.write(&bodyBuff[i], 1400);
+//         i += 1400;
+//     } else {
+//         clientPOST.write(&bodyBuff[i], strlen(bodyBuff) - i);
+//         break;
+//     }
+// }
+
+
+   strcpy(bodyBuff, "\r\n");
+   strcat(bodyBuff, "{ \n");
+   strcat(bodyBuff, "   \"artists\" : [ \n");
+   strcat(bodyBuff, "     { \n");
+   strcat(bodyBuff, "       \"artistname\" : \"Leonard Cohen\", \n");
+   strcat(bodyBuff, "       \"born\" : \"1934\"  \n");
+   strcat(bodyBuff, "     },  \n");
+   strcat(bodyBuff, "   {  \n");
+   strcat(bodyBuff, "       \"artistname\" : \"Joe Satriani\",  \n");
+   strcat(bodyBuff, "       \"born\" : \"1956\"  \n");
+   strcat(bodyBuff, "     },  \n");
+   strcat(bodyBuff, "   {  \n");
+   strcat(bodyBuff, "       \"artistname\" : \"Snoop Dogg\",  \n");
+   strcat(bodyBuff, "       \"born\" : \"1971\"  \n");
+   strcat(bodyBuff, "     }  \n");
+   strcat(bodyBuff, "  ]  \n");
+   strcat(bodyBuff, "}  \n");
+   //  strcpy(bodyBuff, "AYO BITCHES");
+
+    if(!postPage(serverName,serverPort,pageName,bodyBuff)) Serial.print(F("Fail "));
+    else Serial.print(F("Pass "));
+
+
 }
