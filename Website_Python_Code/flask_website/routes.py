@@ -1,10 +1,11 @@
 from flask import render_template, url_for, flash, redirect, Response, request
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+'''from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib.pyplot import figure
+'''
 import io
 import base64
 import json
-from matplotlib.pyplot import figure
 from flask_website.forms import RegistrationForm, LoginForm, SettingsForm, AccountForm
 from flask_website import app, bcrypt, db, login_manager
 
@@ -127,15 +128,17 @@ def home():
     print(curr_user_groups)
 
     '''{"user_name": "__USERNAME__"
-                    "payment_tier": "__0/1__"
-                                  "sensor_data": {
-                                        
-                                       "__GROUPNAME__": {
-                                                "sensor_id": {
-                                                    "sensor_name": __SENSNAME__
-                                                    "x_vals": [__READINGTIMES__]
-                                                    "y_vals": [__SENSORREADS__]
-                                                    "bat_level": __BATLEV__'''
+        "payment_tier": "__0/1__"
+        "sensor_data": {
+                        "__GROUPNAME__": {
+                                        "sensor_id": {
+                                        "sensor_name": __SENSNAME__
+                                        "x_vals": [__READINGTIMES__]
+                                        "y_vals": [__SENSORREADS__]
+                                        "bat_level": __BATLEV__
+                                                    
+            
+    '''
     pprint(user_data)
     for group in curr_user_groups:
 
@@ -171,30 +174,6 @@ def home():
                 curr_sensor["y_vals"].append(data_point[3])
                 counter = counter + 1
 
-            fig = Figure()
-            plt = fig.add_subplot(1, 1, 1)
-
-            plt.set_ylim(0, 100)
-            plt.set_xlim(0, len(curr_sensor["x_vals"]))
-            # naming the x axis
-            plt.set_xlabel('Reading Times')
-            # naming the y axis
-            plt.set_ylabel('Sensor Levels')
-
-            # giving a title to my graph
-            plt.set_title('Sensor data for %s' % curr_sensor["name"])
-
-            plt.plot(curr_sensor["x_vals"], curr_sensor["y_vals"], color='green', linestyle='dashed',
-                     linewidth=3, marker='o', markerfacecolor='blue', markersize=12)
-
-            # Convert plot to PNG image
-            pngImage = io.BytesIO()
-            FigureCanvas(fig).print_png(pngImage)
-
-            pngImageB64String = "data:image/png;base64,"
-            pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
-
-            curr_sensor["image"] = pngImageB64String
 
             pprint(curr_sensor)
             pprint(user_data)
@@ -205,6 +184,33 @@ def home():
     
     pprint(user_data)
     return render_template('home.html', account_info=user_data)
+
+
+'''fig = Figure()
+plt = fig.add_subplot(1, 1, 1)
+
+plt.set_ylim(0, 100)
+plt.set_xlim(0, len(curr_sensor["x_vals"]))
+# naming the x axis
+plt.set_xlabel('Reading Times')
+# naming the y axis
+plt.set_ylabel('Sensor Levels')
+
+# giving a title to my graph
+plt.set_title('Sensor data for %s' % curr_sensor["name"])
+
+plt.plot(curr_sensor["x_vals"], curr_sensor["y_vals"], color='green', linestyle='dashed',
+         linewidth=3, marker='o', markerfacecolor='blue', markersize=12)
+
+# Convert plot to PNG image
+pngImage = io.BytesIO()
+FigureCanvas(fig).print_png(pngImage)
+
+pngImageB64String = "data:image/png;base64,"
+pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
+
+curr_sensor["image"] = pngImageB64String'''
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
