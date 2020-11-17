@@ -1,3 +1,5 @@
+
+
 /*[
 
  Milone Wifi+LoRa Web Server
@@ -7,6 +9,7 @@
 
 
  */
+#include <ArduinoJson.h>
 #include <b64.h>
 #include <HttpClient.h>
 #include <ArduinoHttpClient.h>
@@ -48,8 +51,9 @@ int serverPort = 80; //Added by Ethan A.
 char pageName[] = "/t/sensor/post"; //Added by Ethan A.
 unsigned long thisMillis = 0; //Added by Ethan A.
 unsigned long lastMillis = 0; //Added by Ethan A.
+//record_t rx_record;
 char bodyBuff[400];
-WiFiClient clientPOST;
+StaticJsonDocument<400> doc;
 
 WiFiServer server(80);
 
@@ -469,6 +473,7 @@ void loop() {
     uint8_t loraRxBuf[RH_RF95_MAX_MESSAGE_LEN];
 
     record_t rx_record;
+
     currentMillis = millis();
 
 //  Serial.println("loop...");
@@ -740,7 +745,7 @@ void loop() {
 
                         break;  // no need to search more
                     }
-           //         postData();
+                    postData();
                 } // end if inserted (dirty joke here...)
 
                 Serial.println("====done inserting====");
@@ -952,101 +957,48 @@ void loop() {
                     client.println();
 
                     client.stop();
-                } else if (StartsWith(request, "GET /example.json ")) {
-
-                    strcat(outbuff, "HTTP/1.1 200 OK\r\n");
-                    strcat(outbuff, "Content-Type: application/json\r\n");
-                    strcat(outbuff, "\r\n");
-
-                    strcat(outbuff, "{ \n");
-                    strcat(outbuff, "\"artists\" : [ \n");
-                    strcat(outbuff, "{ \n");
-                    strcat(outbuff, "\"artistname\" : \"Leonard Cohen\", \n");
-                    strcat(outbuff, "\"born\" : \"1934\"  \n");
-                    strcat(outbuff, "},  \n");
-                    strcat(outbuff, "{  \n");
-                    strcat(outbuff, "\"artistname\" : \"Joe Satriani\",  \n");
-                    strcat(outbuff, "\"born\" : \"1956\"  \n");
-                    strcat(outbuff, "},  \n");
-                    strcat(outbuff, "{  \n");
-                    strcat(outbuff, "\"artistname\" : \"Snoop Dogg\",  \n");
-                    strcat(outbuff, "\"born\" : \"1971\"  \n");
-                    strcat(outbuff, "}  \n");
-                    strcat(outbuff, "]  \n");
-                    strcat(outbuff, "}  \n");
-                    strcat(outbuff, ctime(&rx_record.timestamp));
-                    for (int i = 0; i < strlen(outbuff);) {
-                        if ((strlen(outbuff) - i) > 1400) {
-                            client.write(&outbuff[i], 1400);
-                            i += 1400;
-                        } else {
-                            client.write(&outbuff[i], strlen(outbuff) - i);
-                            break;
-                        }
-                    }
-
-                    //client.println(outbuff);
-                    client.println();
-
-                    client.stop();
-                } else if (StartsWith(request, "GET /sensor.json ")) {
-
+                }else if (StartsWith(request, "GET /sensor.json ")) {
+                    #define tempInString "AT+CPMS=\"ME\""
                     strcat(outbuff, "HTTP/1.1 200 OK\r\n");
                     strcat(outbuff, "Content-Type: application/json\r\n");
                     strcat(outbuff, "\r\n");
 
                     for (int i = 0; i < MAX_RECORDS; i++) {
-                        if (records[i].valid) {
-                            strcat(outbuff, "[ \n");
-                            strcat(outbuff, "{ \n");
-                            // Entry #
-                            itoa(i, tmp, 10);
-                            strcat(outbuff, "Entry # :");  //entry number
-                            strcat(outbuff, tmp);
-                            strcat(outbuff, ",\n");
+                        if (records[i].valid) { 
+                          doc["Sensor ID"] = records[i].id;
+                          JsonArray sensorInfo = doc.createNestedArray("Sensor Data");
+                          JsonObject sensData = sensorInfo.createNestedObject();
+                          
+                          itoa(i, tmp, 10);
+                          sensData["Entry #"] = i;
+                          
+                          sensData["Name"] = records[i].name;
+                          
+                          memset(tmp, 0, sizeof(tmp));
+                          sprintf(tmp, "%d", records[i].reading);
+                          sensData["Liquid %"] = records[i].reading;
 
-                            // Sensor ID #
-                            strcat(outbuff, "Sensor ID :");
-                            strcat(outbuff, records[i].id);  // client id
-                            strcat(outbuff, ",\n");
+                          memset(tmp, 0, sizeof(tmp));
+                          sprintf(tmp, "%d", records[i].batteryPercentage);
+                          sensData["Battery %"] = records[i].batteryPercentage;
 
-                            // Sensor Name
-                            strcat(outbuff, "Name :");
-                            strcat(outbuff, records[i].name);  // client id
-                            strcat(outbuff, ",\n");
-
-                            strcat(outbuff, "Liquid % :");
-                            memset(tmp, 0, sizeof(tmp));
-                            sprintf(tmp, "%d", records[i].reading);
-                            strcat(outbuff, tmp);  // sensor reading
-                            strcat(outbuff, ",\n");
-
-                            strcat(outbuff, "Battery % :");
-                            memset(tmp, 0, sizeof(tmp));
-                            sprintf(tmp, "%d", records[i].batteryPercentage);
-                            strcat(outbuff, tmp);  // battery voltage
-                            strcat(outbuff, ",\n");
-
-                            // Sensor RSSI
-                            strcat(outbuff, "RSSI :");
-                            memset(tmp, 0, sizeof(tmp));
-                            sprintf(tmp, "%d", records[i].rssi);
-                            strcat(outbuff, tmp);  // battery voltage
-                            strcat(outbuff, ",\n");
-
-                            strcat(outbuff, "Time Stamp :");
-                            strcat(outbuff, ctime(&records[i].timestamp));
-                            strcat(outbuff, "\n");
-                            strcat(outbuff, "} \n");
-                            strcat(outbuff, "] \n");
+                          memset(tmp, 0, sizeof(tmp));
+                          sprintf(tmp, "%d", records[i].rssi);
+                          sensData["RSSI"] = records[i].rssi;
+                          
+                          sensData["Time Stamp"] = ctime(&rx_record.timestamp);
+                          serializeJsonPretty(doc, bodyBuff);
+                          Serial.println("This uses:");
+                          Serial.println(doc.memoryUsage());  
+                          doc.garbageCollect();
                         }
                     }
-                    for (int i = 0; i < strlen(outbuff);) {
-                        if ((strlen(outbuff) - i) > 1400) {
-                            client.write(&outbuff[i], 1400);
+                    for (int i = 0; i < strlen(bodyBuff);) {
+                        if ((strlen(bodyBuff) - i) > 1400) {
+                            client.write(&bodyBuff[i], 1400);
                             i += 1400;
                         } else {
-                            client.write(&outbuff[i], strlen(outbuff) - i);
+                            client.write(&bodyBuff[i], strlen(bodyBuff) - i);
                             break;
                         }
                     }
@@ -1427,7 +1379,7 @@ void loop() {
             }
 
         }
-        // postData();
+         //postData();
         Serial.println("web client disconnected");
     }
 
@@ -1437,10 +1389,9 @@ void loop() {
 
 byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
 {
-//  WiFiClient clientPOST;
+  WiFiClient clientPOST;
   int inChar;
   char outBuf[64];
-  int stringLength;
 
   Serial.print(F("====Connecting to server===="));
   Serial.println("Trying to send A JSON");
@@ -1456,8 +1407,7 @@ byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
     clientPOST.println(outBuf);
     clientPOST.println(F("Connection: close\r\nContent-Type: application/json"));
     clientPOST.println("User-Agent: Adafruit Feather M0 WiFi - ATSAMD21 + ATWINC1500");
-    stringLength = strlen(thisData);
-    sprintf(outBuf,"Content-Length: %u\r\n",stringLength);
+    sprintf(outBuf,"Content-Length: %u\r\n",strlen(thisData));
     clientPOST.println(outBuf);
     // send the body (variables)
     clientPOST.print(thisData);
@@ -1497,82 +1447,44 @@ byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
 
 void postData() //Added by Ethan A.
 {
-//  char tmp[256];
-//    for (int i = 0; i < MAX_RECORDS; i++) {
-//      if (records[i].valid) {
-//         strcat(bodyBuff, "[ \n");
-//         strcat(bodyBuff, "{ \n");
-//         // Entry #
-//         itoa(i, tmp, 10);
-//         strcat(bodyBuff, "Entry # :");  //entry number
-//         strcat(bodyBuff, tmp);
-//         strcat(bodyBuff, ",\n");
-//
-//         // Sensor ID #
-//         strcat(bodyBuff, "Sensor ID :");
-//         strcat(bodyBuff, records[i].id);  // client id
-//         strcat(bodyBuff, ",\n");
-//
-//         // Sensor Name
-//         strcat(bodyBuff, "Name :");
-//         strcat(bodyBuff, records[i].name);  // client id
-//         strcat(bodyBuff, ",\n");
-//
-//         strcat(bodyBuff, "Liquid % :");
-//         memset(tmp, 0, sizeof(tmp));
-//         sprintf(tmp, "%d", records[i].reading);
-//         strcat(bodyBuff, tmp);  // sensor reading
-//         strcat(bodyBuff, ",\n");
-//
-//         strcat(bodyBuff, "Battery % :");
-//         memset(tmp, 0, sizeof(tmp));
-//         sprintf(tmp, "%d", records[i].batteryPercentage);
-//         strcat(bodyBuff, tmp);  // battery voltage
-//         strcat(bodyBuff, ",\n");
-//
-//         // Sensor RSSI
-//         strcat(bodyBuff, "RSSI :");
-//         memset(tmp, 0, sizeof(tmp));
-//         sprintf(tmp, "%d", records[i].rssi);
-//         strcat(bodyBuff, tmp);  // battery voltage
-//         strcat(bodyBuff, ",\n");
-//
-//         strcat(bodyBuff, "Time Stamp :");
-//         strcat(bodyBuff, ctime(&records[i].timestamp));
-//         strcat(bodyBuff, "\n");
-//         strcat(bodyBuff, "} \n");
-//         strcat(bodyBuff, "] \n");
-//     }
-// }
-// for (int i = 0; i < strlen(bodyBuff);) {
-//     if ((strlen(bodyBuff) - i) > 1400) {
-//         clientPOST.write(&bodyBuff[i], 1400);
-//         i += 1400;
-//     } else {
-//         clientPOST.write(&bodyBuff[i], strlen(bodyBuff) - i);
-//         break;
-//     }
-// }
+  char tmp[256];
+  time_t rawtime;
+  struct tm * timeinfo;
+  time (&rawtime);
+  timeinfo = localtime (&rawtime);
 
+   for (int i = 0; i < MAX_RECORDS; i++) {
+      if (records[i].valid) {
+         doc["Sensor ID"] = records[i].id;
+         JsonArray sensorInfo = doc.createNestedArray("Sensor Data"); 
+         JsonObject sensData = sensorInfo.createNestedObject();
+         WiFi.getTime();
+         
+         itoa(i, tmp, 10);
+         sensData["Entry #"] = tmp;
+         
+         sensData["Name"] = records[i].name;
+         
+         memset(tmp, 0, sizeof(tmp));
+         sprintf(tmp, "%d", records[i].reading);
+         sensData["Liquid %"] = tmp;
 
-   strcpy(bodyBuff, "\r\n");
-   strcat(bodyBuff, "{ \n");
-   strcat(bodyBuff, "   \"artists\" : [ \n");
-   strcat(bodyBuff, "     { \n");
-   strcat(bodyBuff, "       \"artistname\" : \"Leonard Cohen\", \n");
-   strcat(bodyBuff, "       \"born\" : \"1934\"  \n");
-   strcat(bodyBuff, "     },  \n");
-   strcat(bodyBuff, "   {  \n");
-   strcat(bodyBuff, "       \"artistname\" : \"Joe Satriani\",  \n");
-   strcat(bodyBuff, "       \"born\" : \"1956\"  \n");
-   strcat(bodyBuff, "     },  \n");
-   strcat(bodyBuff, "   {  \n");
-   strcat(bodyBuff, "       \"artistname\" : \"Snoop Dogg\",  \n");
-   strcat(bodyBuff, "       \"born\" : \"1971\"  \n");
-   strcat(bodyBuff, "     }  \n");
-   strcat(bodyBuff, "  ]  \n");
-   strcat(bodyBuff, "}  \n");
-   //  strcpy(bodyBuff, "AYO BITCHES");
+         memset(tmp, 0, sizeof(tmp));
+         sprintf(tmp, "%d", records[i].batteryPercentage);
+         sensData["Battery %"] = tmp;
+
+         memset(tmp, 0, sizeof(tmp));
+         sprintf(tmp, "%d", records[i].rssi);
+         sensData["RSSI"] = tmp;         
+//         sensData["Time Stamp"] = ctime(&rawtime);
+          doc["time stamp"] = asctime(timeinfo);
+         Serial.println(asctime(timeinfo));
+         serializeJsonPretty(doc, bodyBuff);
+         Serial.println("This uses:");
+         Serial.println(doc.memoryUsage());  
+         doc.garbageCollect();
+       }
+   }
 
     if(!postPage(serverName,serverPort,pageName,bodyBuff)) Serial.print(F("Fail "));
     else Serial.print(F("Pass "));
