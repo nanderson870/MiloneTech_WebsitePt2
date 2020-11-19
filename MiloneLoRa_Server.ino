@@ -1389,7 +1389,7 @@ void loop() {
 
 byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
 {
-  WiFiClient clientPOST;
+  WiFiSSLClient clientPOST;
   int inChar;
   char outBuf[64];
 
@@ -1415,7 +1415,7 @@ byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
   else
   {
     Serial.println(F("failed"));
-    Serial.println("====CANT SEND DAT BIH OUT====");
+    Serial.println("====CANT SEND IT OUT====");
     return 0;
   }
 
