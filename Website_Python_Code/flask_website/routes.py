@@ -158,17 +158,19 @@ def sensor():
 
     data_string = "Recieved post at: %s\n" % datetime.datetime.now()
     print(data_string)
-    data_string = data_string + str(request.json) + "\n"
+    data = request.json
+    data_string = data_string + str(data) + "\n"
 
     with open('./flask_website/records.txt', 'a') as f:
         f.write(data_string)
 
+    sensorID = data["Sensor ID"]
 
-    '''
-    sensor_msg = request.json
-    db.sensor_readings.add_reading_no_time(sensor_msg["Sensor ID"], sensor_msg["Liquid %"], sensor_msg["Battery %"], 0)
-    '''
-    return "OK"
+    for entry in data["Sensor Data"]:
+        db.sensor_readings.add_reading_no_time(sensorID, entry["Liquid %"], entry["Battery %"],
+                                               entry["RSSI"])
+
+    return db.sensors.get_sensor_time_between(sensorID)
 
 @app.route("/account", methods=['GET', 'POST'])
 @login_required

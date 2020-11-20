@@ -90,6 +90,17 @@ def set_sensor_name(sens_id, sens_name):
     except exc.SQLAlchemyError:
         return False
 
+def get_sensor_time_between(sens_id):
+    try:
+        with db.engine.connect() as connection:
+            connection.execute("select timeBetweenReadings "
+                                "from sensors "
+                                "where sensorID = '{}'"
+                               .format(sens_name))
+            return True
+    except exc.SQLAlchemyError:
+        return False
+
 
 def set_sensor_group(sens_id, sens_group):
     try:
