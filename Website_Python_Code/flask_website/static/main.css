@@ -86,3 +86,12 @@ a.article-title:hover {
 h3{
     color: #59564f;
 }
+
+.battery{
+
+color : green;
+font-size: 32px;
+background:
+rgba(0, 128, 0, 0.3);
+
+}
