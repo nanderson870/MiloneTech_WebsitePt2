@@ -35,7 +35,6 @@ def add_sensor(acc_id, sens_id, sens_size, sens_type, name):
         return False
 
 
-# not 100 on this one
 def add_sensor_to_account(sens_id, email):
     try:
         with db.engine.connect() as connection:
@@ -43,8 +42,8 @@ def add_sensor_to_account(sens_id, email):
                                "set sensors.accountID = (select accountID "
                                                         "from accounts "
                                                         "where accountEmail = '{}') "
-                               "where sensorID = '{}'"
-                               .format(email, sens_id))
+                                                        "where sensorID = '{}'"
+                                                        .format(email, sens_id))
             return True
     except exc.SQLAlchemyError:
         return False
@@ -93,15 +92,15 @@ def set_sensor_name(sens_id, sens_name):
     except exc.SQLAlchemyError:
         return False
 
+
 def get_sensor_time_between(sens_id):
     try:
         with db.engine.connect() as connection:
 
             time = connection.execute("select timeBetweenReadings "
-                                "from sensors "
-                                "where sensorID = '{}'"
-                               .format(sens_id))
-
+                                      "from sensors "
+                                      "where sensorID = '{}'"
+                                      .format(sens_id))
 
             return time[0]
 
