@@ -40,7 +40,6 @@ def get_sensor_data_points(sens_id):
             for row in result:
                 data.append(row)
             return data
-
     except exc.SQLAlchemyError:
         return False
 
