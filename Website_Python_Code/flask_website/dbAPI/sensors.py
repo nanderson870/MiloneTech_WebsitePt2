@@ -7,14 +7,15 @@ def get_acc_id_by_sens_id(sens_id):
             acc = []
             result = connection.execute("select accountID "
                                         "from sensors "
-                                        "where sensorID = {}"
+                                        "where sensorID = '{}' "
                                         .format(sens_id))
             for row in result:
                 acc.append(row['accountID'])
 
             print(acc)
             return acc[0]
-    except exc.SQLAlchemyError:
+    except exc.SQLAlchemyError as e:
+        print(e)
         return False
 
 class Sensors(db.Base):
@@ -93,11 +94,15 @@ def set_sensor_name(sens_id, sens_name):
 def get_sensor_time_between(sens_id):
     try:
         with db.engine.connect() as connection:
-            connection.execute("select timeBetweenReadings "
+
+            time = connection.execute("select timeBetweenReadings "
                                 "from sensors "
                                 "where sensorID = '{}'"
-                               .format(sens_name))
-            return True
+                               .format(sens_id))
+
+
+            return time[0]
+
     except exc.SQLAlchemyError:
         return False
 

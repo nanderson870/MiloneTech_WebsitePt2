@@ -8,18 +8,41 @@ class Accounts(db.Base):
 
 def get_id_by_email(acc_email):
 
-    with db.engine.connect() as connection:
-        acc_id = []
-        result = connection.execute("select accountID "
-                                    "from accounts "
-                                    "where accountEmail = '{}'"
-                                    .format(acc_email))
-        print(result)
-        for row in result:
-            print(row)
-            acc_id.append(row[0])
+    try:
+        with db.engine.connect() as connection:
+            acc_id = []
+            result = connection.execute("select accountID "
+                                        "from accounts "
+                                        "where accountEmail = '{}'"
+                                        .format(acc_email))
+            print(result)
+            for row in result:
+                print(row)
+                acc_id.append(row[0])
 
-        return acc_id
+            return acc_id
+
+    except exc.SQLAlchemyError:
+        return False
+
+def get_star_by_email(acc_email):
+
+    try:
+        with db.engine.connect() as connection:
+            acc_id = []
+            result = connection.execute("select * "
+                                        "from accounts "
+                                        "where accountEmail = '{}'"
+                                        .format(acc_email))
+            print(" get_star result %s " % result)
+            for row in result:
+                print(row)
+                acc_id.append(row[0])
+
+            return acc_id
+
+    except exc.SQLAlchemyError:
+        return False
 
 
 def get_email_by_id(account_id):

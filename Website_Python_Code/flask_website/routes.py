@@ -7,10 +7,12 @@ import datetime
 import io
 import base64
 import json
-from flask_website.forms import RegistrationForm, LoginForm, SettingsForm, AccountForm
+import flask_website.emailer as email
+from flask_website.forms import RegistrationForm, LoginForm, SettingsForm, AccountForm, RequestResetForm, ResetPasswordForm
 from flask_website import app, bcrypt, db, login_manager
-
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import login_user, current_user, logout_user, login_required, UserMixin
+import datetime
 from pprint import pprint
 
 class User(UserMixin):
@@ -76,18 +78,40 @@ class User(UserMixin):
                     '''
                     curr_sensor["x_vals"] = data_point[5]
                     '''
-                    curr_sensor["x_vals"].append(counter)
+
+                    dateSQL = data_point[5]
+                    dateSQL = dateSQL - datetime.timedelta(hours = 5)
+                    date = str(dateSQL)
+
+                    curr_sensor["x_vals"].append(date)
                     curr_sensor["y_vals"].append(data_point[3])
                     counter = counter + 1
 
                 data["sensor_data"][group][sensor] = curr_sensor
 
-        return data
+        self.user_data = data
+
+    def get_reset_token(self, expires_sec=1800):
+
+        s = Serializer(app.config["SECRET_KEY"], expires_sec)
+        return s.dumps( { 'user_id':self.id }).decode('utf-8')
+
+    def verify_reset_token(token):
+
+        s = Serializer(app.config["SECRET_KEY"])
+
+        try:
+           user_id = s.loads(token)['user_id']
+        except:
+            return None
+
+        return user_id
+
 
     def __init__(self, userID):
         self.id = userID
         self.email = db.accounts.get_email_by_id(userID)[0]
-        self.user_data = self.initialize_user_data()
+        self.user_data = None
 
 
 @login_manager.user_loader
@@ -126,6 +150,7 @@ def login():
 @login_required
 def home():
 
+    current_user.initialize_user_data()
     return render_template('home.html', account_info=current_user.user_data)
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -159,6 +184,8 @@ def sensor():
     data_string = "Recieved post at: %s\n" % datetime.datetime.now()
     print(data_string)
     data = request.json
+    print(data)
+    print(type(data))
     data_string = data_string + str(data) + "\n"
 
     with open('./flask_website/records.txt', 'a') as f:
@@ -170,7 +197,11 @@ def sensor():
         db.sensor_readings.add_reading_no_time(sensorID, entry["Liquid %"], entry["Battery %"],
                                                entry["RSSI"])
 
-    return db.sensors.get_sensor_time_between(sensorID)
+    time_response = db.sensors.get_sensor_time_between(sensorID)
+    print(time_response)
+    print(type(time_response))
+
+    return time_response
 
 @app.route("/account", methods=['GET', 'POST'])
 @login_required
@@ -206,6 +237,47 @@ def settings():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+@app.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
+
+    form = RequestResetForm()
+
+    if form.validate_on_submit():
+        user = db.accounts.get_star_by_email(form.email.data)
+        flash('An email has been sent with instructions on how to reset your password')
+        user_obj = User(user[0])
+        token = User.get_reset_token(user_obj)
+        email.send_password_request(form.email.data, url_for('reset_token',token=token, _external=True))
+
+        return redirect(url_for('login'))
+
+
+    return render_template('reset_request.html', title = "Reset Password", form=form)
+
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_token(token):
+
+    user = load_user(User.verify_reset_token(token))
+
+    if user is None:
+        flash('That is an Invalid/Expired Token', 'warning')
+        return redirect(url_for('reset_request'))
+
+    form = ResetPasswordForm()
+
+    if form.validate_on_submit():
+
+        hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        db.accounts.set_account_password(hashed_pass, user.email )
+
+        flash(f'Your password has been updated! You may now Login', 'success')
+        return redirect(url_for('login'))
+
+
+
+
+    return render_template('reset_token.html', title = "Reset Password", form=form)
 
 '''fig = Figure()
 plt = fig.add_subplot(1, 1, 1)
