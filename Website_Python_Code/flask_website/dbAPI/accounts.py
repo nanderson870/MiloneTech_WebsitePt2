@@ -7,84 +7,100 @@ class Accounts(db.Base):
 
 
 def get_id_by_email(acc_email):
+    try:
+        with db.engine.connect() as connection:
+            acc_id = []
+            result = connection.execute("select accountID "
+                                        "from accounts "
+                                        "where accountEmail = '{}'"
+                                        .format(acc_email))
+            print(result)
+            for row in result:
+                print(row)
+                acc_id.append(row[0])
 
-    with db.engine.connect() as connection:
-        acc_id = []
-        result = connection.execute("select accountID "
-                                    "from accounts "
-                                    "where accountEmail = '{}'"
-                                    .format(acc_email))
-        print(result)
-        for row in result:
-            print(row)
-            acc_id.append(row[0])
-
-        return acc_id
+            return acc_id[0]
+    except exc.SQLAlchemyError:
+        return False
 
 
 def get_email_by_id(account_id):
-    with db.engine.connect() as connection:
-        email = []
-        result = connection.execute("select accountEmail "
-                                    "from accounts "
-                                    "where accountID = {}"
-                                    .format(account_id))
-        for row in result:
-            email.append(row['accountEmail'])
-    return email
+    try:
+        with db.engine.connect() as connection:
+            email = []
+            result = connection.execute("select accountEmail "
+                                        "from accounts "
+                                        "where accountID = {}"
+                                        .format(account_id))
+            for row in result:
+                email.append(row['accountEmail'])
+            return email[0]
+    except exc.SQLAlchemyError:
+        return False
 
 
 def get_phone_by_id(account_id):
-    with db.engine.connect() as connection:
-        phone = []
-        result = connection.execute("select phoneNumber "
-                                    "from accounts "
-                                    "where accountID = {}"
-                                    .format(account_id))
-        for row in result:
-            phone.append(row['phoneNumber'])
-    return phone
+    try:
+        with db.engine.connect() as connection:
+            phone = []
+            result = connection.execute("select phoneNumber "
+                                        "from accounts "
+                                        "where accountID = {}"
+                                        .format(account_id))
+            for row in result:
+                phone.append(row['phoneNumber'])
+            return phone[0]
+    except exc.SQLAlchemyError:
+        return False
 
 
 def get_name_by_id(account_id):
-    with db.engine.connect() as connection:
-        name = []
-        result = connection.execute("select fname, lname "
-                                    "from accounts "
-                                    "where accountID = {}"
-                                    .format(account_id))
-        for row in result:
-            name.append((row['fname'], row['lname']))
-    return name
+    try:
+        with db.engine.connect() as connection:
+            name = []
+            result = connection.execute("select fname, lname "
+                                        "from accounts "
+                                        "where accountID = {}"
+                                        .format(account_id))
+            for row in result:
+                name.append((row['fname'], row['lname']))
+            return name[0]
+    except exc.SQLAlchemyError:
+        return False
 
 
 def get_pass_by_id(account_id):
-    with db.engine.connect() as connection:
-        pass_hash = []
-        result = connection.execute("select passwordHash "
-                                    "from accounts "
-                                    "where accountID = {}"
-                                    .format(account_id))
-        print(result)
-        for row in result:
-            print(row)
-            print(type(row))
-            print(type(row[0]))
-            pass_hash.append(row[0])
-    return pass_hash
+    try:
+        with db.engine.connect() as connection:
+            pass_hash = []
+            result = connection.execute("select passwordHash "
+                                        "from accounts "
+                                        "where accountID = {}"
+                                        .format(account_id))
+            print(result)
+            for row in result:
+                print(row)
+                print(type(row))
+                print(type(row[0]))
+                pass_hash.append(row[0])
+            return pass_hash[0]
+    except exc.SQLAlchemyError:
+        return False
 
 
 def get_status_by_id(account_id):
-    with db.engine.connect() as connection:
-        account_status = []
-        result = connection.execute("select accountStatus "
-                                    "from accounts "
-                                    "where accountID = {}"
-                                    .format(account_id))
-        for row in result:
-            account_status.append(row['accountStatus'])
-    return account_status
-
+    try:
+        with db.engine.connect() as connection:
+            account_status = []
+            result = connection.execute("select accountStatus "
+                                        "from accounts "
+                                        "where accountID = {}"
+                                        .format(account_id))
+            for row in result:
+                account_status.append(row['accountStatus'])
+            return account_status[0]
+    except exc.SQLAlchemyError:
+        return False
 
 
 def create_account(email, first_name, last_name, pass_hash):

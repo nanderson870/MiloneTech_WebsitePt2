@@ -1,6 +1,11 @@
 from sqlalchemy import exc
 from . import db
 
+
+class Sensors(db.Base):
+    __table__ = db.Base.metadata.tables['sensors']
+
+
 def get_acc_id_by_sens_id(sens_id):
     try:
         with db.engine.connect() as connection:
@@ -16,9 +21,6 @@ def get_acc_id_by_sens_id(sens_id):
             return acc[0]
     except exc.SQLAlchemyError:
         return False
-
-class Sensors(db.Base):
-    __table__ = db.Base.metadata.tables['sensors']
 
 
 def add_sensor(acc_id, sens_id, sens_size, sens_type, name):
@@ -86,17 +88,6 @@ def set_sensor_name(sens_id, sens_name):
                                "set sensorName = '{}' "
                                "where sensorID = '{}'"
                                .format(sens_name, sens_id))
-            return True
-    except exc.SQLAlchemyError:
-        return False
-
-def get_sensor_time_between(sens_id):
-    try:
-        with db.engine.connect() as connection:
-            connection.execute("select timeBetweenReadings "
-                                "from sensors "
-                                "where sensorID = '{}'"
-                               .format(sens_name))
             return True
     except exc.SQLAlchemyError:
         return False

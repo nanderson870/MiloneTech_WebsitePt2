@@ -2,8 +2,10 @@ from sqlalchemy import exc
 from . import db
 from . import sensors
 
+
 class SensorReadings(db.Base):
     __table__ = db.Base.metadata.tables['sensor_readings']
+
 
 def add_reading_no_time(sens_id, liquid, battery, rssi):
     try:
@@ -25,6 +27,7 @@ def add_reading_yes_time(sens_id, liquid, battery, time_stamp, rssi):
             return True
     except exc.SQLAlchemyError:
         return False
+
 
 def get_sensor_data_points(sens_id):
     try:
