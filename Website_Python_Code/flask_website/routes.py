@@ -23,7 +23,7 @@ class User(UserMixin):
         data = {}
 
         data["email"] = self.email
-        data["payment_tier"] = db.accounts.get_status_by_id(self.id)[0]
+        data["payment_tier"] = db.accounts.get_status_by_id(self.id)
         data["sensor_data"] = dict()
         curr_user_sensors = db.sensors.get_all_sensors(self.id)
 
@@ -65,6 +65,7 @@ class User(UserMixin):
 
                 curr_sensor = {}
                 sensor_data = db.sensors.get_sensor_info(sensor)[0]
+                print(sensor_data)
 
                 curr_sensor["name"] = sensor_data[4]
                 curr_sensor["x_vals"] = []
@@ -110,7 +111,7 @@ class User(UserMixin):
 
     def __init__(self, userID):
         self.id = userID
-        self.email = db.accounts.get_email_by_id(userID)[0]
+        self.email = db.accounts.get_email_by_id(userID)
         self.user_data = None
 
 
@@ -129,11 +130,11 @@ def login():
 
     if form.validate_on_submit():
 
-        userID = db.accounts.get_id_by_email(form.email.data)[0]
+        userID = db.accounts.get_id_by_email(form.email.data)
         user = User(userID)
 
 
-        if user and bcrypt.check_password_hash( db.accounts.get_pass_by_id(userID)[0], form.password.data):
+        if user and bcrypt.check_password_hash( db.accounts.get_pass_by_id(userID), form.password.data):
 
             print("almost there")
             login_user(user, remember=form.remember.data)
@@ -244,9 +245,9 @@ def reset_request():
     form = RequestResetForm()
 
     if form.validate_on_submit():
-        user = db.accounts.get_star_by_email(form.email.data)
+        user = db.accounts.get_id_by_email(form.email.data)
         flash('An email has been sent with instructions on how to reset your password')
-        user_obj = User(user[0])
+        user_obj = User(user)
         token = User.get_reset_token(user_obj)
         email.send_password_request(form.email.data, url_for('reset_token',token=token, _external=True))
 
