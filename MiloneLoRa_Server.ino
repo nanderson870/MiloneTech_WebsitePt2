@@ -1,5 +1,7 @@
 
 
+
+
 /*[
 
  Milone Wifi+LoRa Web Server
@@ -9,6 +11,8 @@
 
 
  */
+//#include <Time.h>
+//#include <TimeLib.h>
 #include <ArduinoJson.h>
 #include <b64.h>
 #include <HttpClient.h>
@@ -44,11 +48,13 @@
 int led = LED_BUILTIN;
 int status = WL_IDLE_STATUS;
 //Change to your server domain
-char serverName[] = "www.ptsv2.com"; //Added by Ethan A.
+char serverName[] = "www.ptsv2.com";
+//char serverName[] = "usersmilonetech.com";
 // change to your server's port
-int serverPort = 80; //Added by Ethan A.
+int serverPort = 443; //Added by Ethan A.
 // change to the page on that server
 char pageName[] = "/t/sensor/post"; //Added by Ethan A.
+//char pageName[] = "/sensor";
 unsigned long thisMillis = 0; //Added by Ethan A.
 unsigned long lastMillis = 0; //Added by Ethan A.
 //record_t rx_record;
@@ -1448,13 +1454,17 @@ byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
 void postData() //Added by Ethan A.
 {
   char tmp[256];
-  time_t rawtime;
-  struct tm * timeinfo;
-  time (&rawtime);
-  timeinfo = localtime (&rawtime);
+
 
    for (int i = 0; i < MAX_RECORDS; i++) {
       if (records[i].valid) {
+           time_t now = time(0);
+   
+           char* dt = ctime(&now);
+           //String cTime = dt;
+           Serial.print(dt);
+         
+         
          doc["Sensor ID"] = records[i].id;
          JsonArray sensorInfo = doc.createNestedArray("Sensor Data"); 
          JsonObject sensData = sensorInfo.createNestedObject();
@@ -1476,12 +1486,8 @@ void postData() //Added by Ethan A.
          memset(tmp, 0, sizeof(tmp));
          sprintf(tmp, "%d", records[i].rssi);
          sensData["RSSI"] = tmp;         
-//         sensData["Time Stamp"] = ctime(&rawtime);
-          doc["time stamp"] = asctime(timeinfo);
-         Serial.println(asctime(timeinfo));
+        // sensData["Time Stamp"] = dt;
          serializeJsonPretty(doc, bodyBuff);
-         Serial.println("This uses:");
-         Serial.println(doc.memoryUsage());  
          doc.garbageCollect();
        }
    }
