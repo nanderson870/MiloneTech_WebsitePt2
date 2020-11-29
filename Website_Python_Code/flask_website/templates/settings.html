@@ -4,11 +4,12 @@ table, th, td {
   padding: 5px;
 }
 </style>
-{% extends "layout.html" %}
+{% extends "layout_with_sidebar.html" %}
 {% block content %}
     <div class="content-section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
+	    {{ form.csrf_token }}
             <fieldset class="form-group">
 			<legend class="border-bottom mb-4">Settings</legend>
                 <table>
@@ -18,37 +19,37 @@ table, th, td {
                         <th>How do you want the alert?</th>
 			<th>Del</th>
                         </tr>
-			<?php 
-			$rows = 4;
-			while($rows > 0){ 
-			echo "<tr><td>[SensorName]</td><td>[Trigger Level]</td><td>[TextOrEmail]</td><td>[someLogicThatDeletes TriggerLevelFromDatabase]</td>"; 
-			$rows--; 
-			} 
-			?>
-                        <tr>
-                        <td>Sensor 1</td>
-                        <td>15%</td>
-                        <td>Text</td>
-			<th><a href="#">X</a></th>
-                        </tr>
-                        <tr>
-                        <td>Sensor 2</td>
-                        <td>50%</td>
-                        <td>Email</td>
-			<th><a href="#">X</a></th>
-                        </tr>
-                        <tr>
-                        <td>Sensor 3</td>
-                        <td>90%</td>
-                        <td>Text</td>
-			<th><a href="#">X</a></th>
-                        </tr>
-                        <tr>
-                        <td>Sensor 1</td>
-                        <td>45%</td>
-                        <td>Email</td>
-			<th><a href="#">X</a></th>
-                        </tr>
+			<div id="demo"></div>
+			<script>
+			var listOfDict = {{ account_info }};
+			var x ="", i;
+			var data1;
+			var IPAdress;
+			var table = document.getElementById("triggers");
+			var row = table.insertRow(1);
+			var SensorID;
+			var TriggerLevel;
+			var Howdoyouwantthealert;
+			var Del;
+			var tableData;
+			for (i = 0; i < listOfDict.length; i++) {
+
+				row = table.insertRow(i + 1);
+				data1 = listOfDict[i].indexOf('sensorID');
+				var endingIndex = listOfDict[i].indexOf('&', 27);
+				x =  "{{ sensorID }}";
+				IPAdress = listOfDict[i].substring(26, endingIndex);
+				SensorID = row.insertCell(0);
+				TriggerLevel = row.insertCell(1);	
+				Howdoyouwantthealert = row.insertCell(2);	
+				Del = row.insertCell(3);
+				SensorID.innerHTML = IPAdress;
+				TriggerLevel.innerHTML = "15%";
+				Howdoyouwantthealert.innerHTML = "Text";
+				Del.innerHTML = "X";
+				}
+			}
+			  </script>
                 </div>
                 </div>
                 </table>
@@ -56,23 +57,15 @@ table, th, td {
 		<div class="content-section">
 		<div class="row">
 			<div class="col-auto">
-				<select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
-			        <option selected>Sensor ID</option>
-				<option value="1">Sensor 1</option>
-				<option value="2">Sensor 2</option>
-				<option value="3">Sensor 3</option>
-				</select>
+				{{ form.sensorID }}
 				<div class="row>
 				</div>
 				<div class="row">
 					<div class="col-auto">
-                                        	{{ form.email(class="form-control form-control-sm", placeholder="Level") }}
+                                        	{{ form.level(placeholder="Level") }}
                                         </div>
                                         <div class="col-auto">
-                                        	<select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
-                                        	<option selected>Text</option>
-                                        	<option value="1">Email</option>
-						</select>
+						{{ form.textOrEmail(choices=[('s','s'), ('a','a')]) }}
                                         </div>
 				</div>
 			</div>
@@ -80,33 +73,40 @@ table, th, td {
 				{{ form.submit(class="btn btn-primary btn-sm") }}
 			</div>
 		</div>
+		</div>
+		<legend class="border-bottom mb-4">Change a sensor name</legend>
+		<div class="content-section">
+		<div class="row">
+			<div class="col">
+				{{form.sensorID }}
+			</div>
+			<div class="col">
+                                {{form.newSensorName }}
+                        </div>
+			<div class="col">
+                                {{form.submit }}
+                        </div>
+		</div>
+		</div>
+		<legend class="border-bottom mb-4">Change sensor group</legend>
+		<div class="content-section">
+		<div class="row">
+                        <div class="col-4">
+                                {{ form.sensorID }}
+                        </div>
+                        <div class="col-4">
+                                <div class="row-my-5">
+                                        {{ form.sensorGroup }}
+                                </div>
+                                <div class="row-my-5">
+                                        {{ form.newSensorGroup }}
+                                </div>
+                        </div>
+                        <div class="col-2">
+                                {{ form.submit(class="btn btn-outline-info") }}
+                        </div>
+                </div>
 
-
-			<!-- <div class="row">
-					<div class="col-auto">
-						<div class="row>
-							<select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
-							<option selected>Sensor ID</option>
-							<option value="1">Sensor 1</option>
-							<option value="2">Sensor 2</option>
-							<option value="3">Sensor 3</option>
-							</select>
-						</div>
-						<div class="row">
-							<div class="col-auto">
-							{{ form.email(class="form-control form-control-sm", placeholder="Level") }}
-							</div>
-							<div class="col-auto">
-                                                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
-                                                        <option selected>Text</option>
-                                                        <option value="1">Email</option>
-                                                        </div>
-						</div>
-					</div>
-					<div class="col-auto">
-                                                {{ form.submit(class="btn btn-primary btn-sm") }}
-                                        </div>
-			</div> -->
 		</div>
 	    </fieldset>
         </form>

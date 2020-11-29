@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "layout_with_sidebar.html" %}
 {% block content %}
     <div class="content-section">
         <form method="POST" action="">
@@ -7,22 +7,48 @@
                 <legend class="border-bottom mb-4">Account Info</legend>
 		<div class="content-section">
                 <div class="form-group">
-                    {{ form.email.label(class="form-control-label") }}
-                    {% if form.email.errors %}
-                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+		<div class="row">
+		    <div class="col-2">
+                    {{ account_info.email }}
+		    </div>
+                    {% if form.newEmail.errors %}
+                        {{ form.newEmail(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
-                            {% for error in form.email.errors %}
+                            {% for error in form.newEmail.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.email }}
+		        <div class="col-4">
+
+			</div>
+			<div class="col-6">
+                        {{ form.newEmail(class="form-control form-control-lg", placeholder="change email") }}
+			</div>
                     {% endif %}
+		</div>
+		<div class="row">
+			<div class="col-4">
+				{{ form.phoneNumber(class="form-control form-control-lg", placeholder="Enter Phone #") }}
+			</div>
+			<div class="col-4">
+				<div class="row-my-5">
+					{{ form.password(class="form-control form-control-lg", placeholder="Change Password") }}
+				</div>
+				<div class="row-my-5">
+					{{ form.confirmPassword(class="form-control form-control-lg", placeholder="Confirm Changed Password") }}
+				</div>
+			</div>
+			<div class="col-2">
+				{{ form.submitAccountInfo(class="btn btn-outline-info") }}
+			</div>
                 </div>
 		</div>
+		</div>
+		<legend class="border-bottom mb-4">Add a Sensor</legend>
 		<div class="content-section">
                 <div class="form-group">
-                    {{ form.password.label(class="form-control-label") }}
+		<div class="row">
                     {% if form.password.errors %}
                         {{ form.password(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
@@ -31,26 +57,35 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.password(class="form-control form-control-lg") }}
+		    	<div class="col">
+                        	{{ sensorAccountForm.sensorID(class="form-control form-control-lg", placeholder="Sensor ID") }}
+			</div>
                     {% endif %}
+		<div class="col">
+			{{ sensorAccountForm.submitSensor(class="btn btn-outline-info") }}
+		</div>
                 </div>
 		</div>
-                <div class="form-check">
-                    {{ form.remember(class="form-check-input") }}
-                    {{ form.remember.label(class="form-check-label") }}
                 </div>
+		<legend class="border-bottom mb-4">Payment Info</legend>
+		<div class="content-section">
+		<div class="row">
+			<div class="col">
+			<legend class="border-bottom mb-4">Your current payment tier is: {{ account_info.payment_tier }}
+			{% if account_info.payment_tier  %}
+				You have paid.
+			{% else  %}
+				You have not paid.
+			{% endif %}
+			</legend>
+			</div>
+			<div class="col">
+				<legend class="border-bottom mb-4">Paypal GUI</legend>
+			</div>
+		</div>
+		</div>
             </fieldset>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
-            </div>
-            <small class="text-muted ml-2">
-                <a href="#">Forgot Password?</a>
-            </small>
         </form>
     </div>
-    <div class="border-top pt-3">
-        <small class="text-muted">
-            Need An Account? <a class="ml-2" href="{{ url_for('register') }}">Sign Up Now</a>
-        </small>
-    </div>
 {% endblock content %}
+
