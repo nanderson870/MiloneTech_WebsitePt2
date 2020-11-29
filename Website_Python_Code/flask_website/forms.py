@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
 
@@ -23,16 +23,23 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class AccountForm(FlaskForm):
-    email = StringField('Username',
-                        validators=[DataRequired(), Email()])
-    password = PasswordField('Thighs', validators=[DataRequired()])
-    remember = BooleanField('Ass')
-    submit = SubmitField('Submit')
+    newEmail = StringField('Update Email Info')
+    password = PasswordField('New Password')
+    confirmPassword = PasswordField('Confirm New Password')
+    phoneNumber = StringField('New Phone Number')
+    submitAccountInfo = SubmitField('Submit Account Info')
+
+class SensorAccountForm(FlaskForm):
+    sensorID = StringField('Sensor ID')
+    submitSensor = SubmitField('Submit Sensor')
+
 
 class SettingsForm(FlaskForm):
-    email = StringField('Rocking',
-                        validators=[DataRequired(), Email()])
-    password = PasswordField('On', validators=[DataRequired()])
-    remember = BooleanField('Crazy')
     submit = SubmitField('Add Trigger')
-
+    sensorID = SelectField('Select to add trigger to Sensor', choices = [('temp value', 'changed in routes.py')])
+    textOrEmail = SelectField('Text or Email', choices = [('t', 'text'), ('e', 'email')])
+    level = StringField('Level', validators=[DataRequired()])
+    allSensorNames = SelectField('TODO: change in routes', choices = [('yes', 'no'), ('no', 'yes')])
+    newSensorName = StringField('Enter Sensor\'s Name')
+    sensorGroup = SelectField('ll', choices = [('lol', 'lol'), ('nope', 'nope')])
+    newSensorGroup = StringField('Enter New Sensor Group')
