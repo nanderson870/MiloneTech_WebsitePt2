@@ -7,10 +7,13 @@ import datetime
 import io
 import base64
 import json
-from flask_website.forms import RegistrationForm, LoginForm, SettingsForm, AccountForm, SensorAccountForm
-from flask_website import app, bcrypt, db, login_manager
 
+import flask_website.emailer as email
+from flask_website.forms import RegistrationForm, LoginForm, SettingsForm, AccountForm, SensorAccountForm,RequestResetForm, ResetPasswordForm
+from flask_website import app, bcrypt, db, login_manager
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import login_user, current_user, logout_user, login_required, UserMixin
+import datetime
 from pprint import pprint
 
 class User(UserMixin):
@@ -21,7 +24,8 @@ class User(UserMixin):
         data = {}
 
         data["email"] = self.email
-        data["payment_tier"] = db.accounts.get_status_by_id(self.id)[0]
+        data["payment_tier"] = db.accounts.get_status_by_id(self.id)
+
         data["sensor_data"] = dict()
         curr_user_sensors = db.sensors.get_all_sensors(self.id)
 
@@ -64,6 +68,8 @@ class User(UserMixin):
                 curr_sensor = {}
                 sensor_data = db.sensors.get_sensor_info(sensor)[0]
 
+                print(sensor_data)
+
                 curr_sensor["name"] = sensor_data[4]
                 curr_sensor["x_vals"] = []
                 curr_sensor["y_vals"] = []
@@ -76,18 +82,42 @@ class User(UserMixin):
                     '''
                     curr_sensor["x_vals"] = data_point[5]
                     '''
-                    curr_sensor["x_vals"].append(counter)
+
+                    dateSQL = data_point[5]
+                    dateSQL = dateSQL - datetime.timedelta(hours = 5)
+                    date = str(dateSQL)
+
+                    curr_sensor["x_vals"].append(date)
+
                     curr_sensor["y_vals"].append(data_point[3])
                     counter = counter + 1
 
                 data["sensor_data"][group][sensor] = curr_sensor
 
-        return data
+        self.user_data = data
+
+    def get_reset_token(self, expires_sec=1800):
+
+        s = Serializer(app.config["SECRET_KEY"], expires_sec)
+        return s.dumps( { 'user_id':self.id }).decode('utf-8')
+
+    def verify_reset_token(token):
+
+        s = Serializer(app.config["SECRET_KEY"])
+
+        try:
+           user_id = s.loads(token)['user_id']
+        except:
+            return None
+
+        return user_id
+
 
     def __init__(self, userID):
         self.id = userID
-        self.email = db.accounts.get_email_by_id(userID)[0]
-        self.user_data = self.initialize_user_data()
+        self.email = db.accounts.get_email_by_id(userID)
+        self.user_data = None
+
 
 
 @login_manager.user_loader
@@ -105,11 +135,11 @@ def login():
 
     if form.validate_on_submit():
 
-        userID = db.accounts.get_id_by_email(form.email.data)[0]
+        userID = db.accounts.get_id_by_email(form.email.data)
         user = User(userID)
 
 
-        if user and bcrypt.check_password_hash( db.accounts.get_pass_by_id(userID)[0], form.password.data):
+        if user and bcrypt.check_password_hash( db.accounts.get_pass_by_id(userID), form.password.data):
 
             print("almost there")
             login_user(user, remember=form.remember.data)
@@ -125,6 +155,8 @@ def login():
 @app.route("/home")
 @login_required
 def home():
+
+    current_user.initialize_user_data()
 
     return render_template('home.html', account_info=current_user.user_data)
 
@@ -151,24 +183,111 @@ def register():
     
     return render_template('register.html', title='Register', form=form)
 
-
-# SAMPLE
 @app.route("/sensor", methods=['POST'])
 def sensor():
 
     data_string = "Recieved post at: %s\n" % datetime.datetime.now()
     print(data_string)
-    data_string = data_string + str(request.json) + "\n"
+    data = request.json
+    data_string = data_string + str(data)
+
 
     with open('./flask_website/records.txt', 'a') as f:
         f.write(data_string)
 
+    sensorID = data["Sensor ID"]
 
-    '''
-    sensor_msg = request.json
-    db.sensor_readings.add_reading_no_time(sensor_msg["Sensor ID"], sensor_msg["Liquid %"], sensor_msg["Battery %"], 0)
-    '''
-    return "OK"
+    '''all assuming that the sensor already exists in the DB'''
+    curr_sensor_info = db.sensors.get_sensor_info(sensorID)
+
+    if curr_sensor_info and curr_sensor_info[0][0] is not None:
+
+        sensor_name = curr_sensor_info[0][4]
+
+        #if the sensor_name is Null in DB, just make it equal to the sensorID
+        if not sensor_name:
+            sensor_name = sensorID
+
+        owner_acc_info = db.accounts.get_all_by_id(curr_sensor_info[0][0])
+        '''owner_acc_info structure FOR NOW
+        (acc_id, 'acc_email', fname , lname, number, pass_hash, is_paid)'''
+
+        curr_sensor_alerts = db.alerts.check_alerts(sensorID)
+        '''curr_sensor_alerts structure FOR NOW
+        [(rec num,acc_id, 'sens_id', trig_lev , email? (0/1/2), text? (0/1/2))]'''
+
+        for poss_alert in curr_sensor_alerts:
+
+            for entry in data["Sensor Data"]:
+
+                email_alert_enc = poss_alert[4]
+                text_alert_enc = poss_alert[5]
+                hit = False
+
+                if entry["Liquid %"] >= poss_alert[3]:
+
+                    '''(to_email, sensor, curr_user_name, alert_level, curr_level):'''
+                    if email_alert_enc == 2:
+                        email_alert_enc = 1
+                        hit = True
+                        pass
+
+                    if  text_alert_enc == 2:
+                        text_alert_enc = 1
+                        hit = True
+                        pass
+
+                    if hit:
+                        db.alerts.set_alert_type(poss_alert[0], email_alert_enc, text_alert_enc)
+                        break
+
+
+        #Code for sending out an email if the level is un-triggered
+        for poss_alert in curr_sensor_alerts:
+
+            for entry in data["Sensor Data"]:
+
+                email_alert_enc = poss_alert[4]
+                text_alert_enc = poss_alert[5]
+                hit = False
+
+                if entry["Liquid %"] < poss_alert[3]:
+
+                    '''(to_email, sensor, curr_user_name, alert_level, curr_level):'''
+                    if email_alert_enc == 1:
+                        full_name = owner_acc_info[2] + " " + owner_acc_info[3]
+                        email.send_email_notification(owner_acc_info[1],sensor_name, full_name ,poss_alert[3],entry["Liquid %"])
+                        email_alert_enc += 1
+                        hit = True
+                        pass
+
+                    if  text_alert_enc == 1:
+                        #CODE FOR SENDING AN TEXT
+                        text_alert_enc += 1
+                        hit = True
+                        pass
+
+                    if hit:
+                        db.alerts.set_alert_type(poss_alert[0], email_alert_enc, text_alert_enc)
+                        break
+
+    else:
+        #the sensor doesn't exist in the db... create it
+        # (TODO) FOR NOW with default values
+        db.sensors.add_sensor(sensorID)
+
+
+
+    for entry in data["Sensor Data"]:
+        db.sensor_readings.add_reading_no_time(sensorID, entry["Liquid %"], entry["Battery %"],
+                                               entry["RSSI"])
+
+    time_response = str(db.sensors.get_sensor_time_between(sensorID)[0])
+    print(time_response)
+    print(type(time_response))
+
+    return time_response
+
 
 @app.route("/account", methods=['GET', 'POST'])
 @login_required
@@ -228,27 +347,41 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-'''fig = Figure()
-plt = fig.add_subplot(1, 1, 1)
+@app.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
 
-plt.set_ylim(0, 100)
-plt.set_xlim(0, len(curr_sensor["x_vals"]))
-# naming the x axis
-plt.set_xlabel('Reading Times')
-# naming the y axis
-plt.set_ylabel('Sensor Levels')
+    form = RequestResetForm()
 
-# giving a title to my graph
-plt.set_title('Sensor data for %s' % curr_sensor["name"])
+    if form.validate_on_submit():
+        user = db.accounts.get_id_by_email(form.email.data)
+        flash('An email has been sent with instructions on how to reset your password')
+        user_obj = User(user)
+        token = User.get_reset_token(user_obj)
+        email.send_password_request(form.email.data, url_for('reset_token',token=token, _external=True))
 
-plt.plot(curr_sensor["x_vals"], curr_sensor["y_vals"], color='green', linestyle='dashed',
-         linewidth=3, marker='o', markerfacecolor='blue', markersize=12)
+        return redirect(url_for('login'))
 
-# Convert plot to PNG image
-pngImage = io.BytesIO()
-FigureCanvas(fig).print_png(pngImage)
 
-pngImageB64String = "data:image/png;base64,"
-pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
+    return render_template('reset_request.html', title = "Reset Password", form=form)
 
-curr_sensor["image"] = pngImageB64String'''
+@app.route("/reset_password/<token>", methods=['GET', 'POST'])
+def reset_token(token):
+
+    user = load_user(User.verify_reset_token(token))
+
+    if user is None:
+        flash('That is an Invalid/Expired Token', 'warning')
+        return redirect(url_for('reset_request'))
+
+    form = ResetPasswordForm()
+
+    if form.validate_on_submit():
+
+        hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        db.accounts.set_account_password(hashed_pass, user.email )
+
+        flash(f'Your password has been updated! You may now Login', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('reset_token.html', title = "Reset Password", form=form)
+

@@ -1,10 +1,120 @@
 {% extends "layout_with_sidebar.html" %}
 {% block content %}
 
-<!--
+    {% if account_info.payment_tier == 1 %}
+
+            {% for groupname, group in account_info.sensor_data.items() %}
+
+            <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
+
+                {% for sensorID, sensor in group.items() %}
+
+                    <article class="media content-section">
+
+                      <div class="media-body">
+
+                      <h3 style="text-align: left">Sensor: {{ sensor.name }}</h3>
+
+                      <canvas id='{{sensorID}}'></canvas>
+
+                        <script>
+
+                            var myChart{{sensorID}} = document.getElementById('{{sensorID}}').getContext('2d');
+
+                            // Global Options
+                            Chart.defaults.global.defaultFontFamily = 'Lato';
+                            Chart.defaults.global.defaultFontSize = 18;
+                            Chart.defaults.global.defaultFontColor = '#777';
+
+                            var linechart = new Chart(myChart{{sensorID}}, {
+                              type:'line',
+                              data:{
+                                labels: {{ sensor.x_vals | tojson }},
+                                datasets:[{
+                                  label:'Water Level',
+                                  data:{{ sensor.y_vals }},
+                                  backgroundColor:'blue',
+                                  borderWidth:1,
+                                  borderColor:'#777',
+                                  hoverBorderWidth:3,
+                                  hoverBorderColor:'#000'
+                                }]
+                              },
+                              options:{
+
+                                    legend:{
+                                      display:true,
+                                      position:'right',
+                                      labels:{
+                                        fontColor:'#000'
+                                      }
+                                    },
+                                    scales: {
+                                        yAxes: [{
+                                            display: true,
+                                            ticks: {
+                                                suggestedMin: 0,
+                                                steps: 10,
+                                                stepValue: 10,
+                                                max: 100
+                                            }
+                                        }]
+                                    },
+                                    layout:{
+                                      padding:{
+                                        left:0,
+                                        right:0,
+                                        bottom:0,
+                                        top:0
+                                      }
+                                    },
+                                    tooltips:{
+                                      enabled:true
+                                    }
+
+                                  }
+                            });
+                          </script>
+
+                      <div class = "battery col-md-6" style="color : green; font-size: 32px; background: rgba(0, 128, 0, 0.3); text-align: center">Battery Level: {{ sensor.bat_level }} %</div>
+
+                      </div>
+
+
+                    </article>
+
+                {% endfor %}
+                </div>
+            {% endfor %}
+
+            Times are represented in EST
+{% else %}
+
+        {% for groupname, group in account_info.sensor_data.items() %}
+
+            <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
+
+                {% for sensorID, sensor in group.items() %}
+
+                    <article class="media content-section">
+
+                      <div class="media-body">
+
+                      <h3 style="text-align: left">Sensor: {{ sensor.name }}, Level: {{ sensor.y_vals[-1] }}</h3>
 
 
 
--->
+                      <div class = "battery col-md-6" style="color : green; font-size: 32px; background: rgba(0, 128, 0, 0.3); text-align: center">Battery Level: {{ sensor.bat_level }} %</div>
+
+                      </div>
+
+
+                    </article>
+
+                {% endfor %}
+                </div>
+            {% endfor %}
+
+    {% endif %}
 
 {% endblock content %}

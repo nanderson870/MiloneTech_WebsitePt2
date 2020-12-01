@@ -13,7 +13,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .site-header .navbar-nav .nav-link {
-  color: #0352fc;
+  color: #b7b5bd;
 }
 
 .site-header .navbar-nav .nav-link:hover {
@@ -37,7 +37,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a.article-title:hover {
-  color: #428bca;
+  color: #ffffff;
   text-decoration: none;
 }
 
@@ -85,4 +85,13 @@ a.article-title:hover {
 
 h3{
     color: #59564f;
+}
+
+.battery{
+
+color : green;
+font-size: 32px;
+background:
+rgba(0, 128, 0, 0.3);
+
 }

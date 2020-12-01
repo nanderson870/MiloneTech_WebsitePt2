@@ -1,6 +1,10 @@
 from sqlalchemy import exc
 from . import db
 from . import sensors
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/isaac_2
 
 class SensorReadings(db.Base):
     __table__ = db.Base.metadata.tables['sensor_readings']
@@ -26,6 +30,35 @@ def add_reading_yes_time(sens_id, liquid, battery, time_stamp, rssi):
     except exc.SQLAlchemyError:
         return False
 
+def add_reading_no_time(sens_id, liquid, battery, rssi):
+    try:
+        acc_id = sensors.get_acc_id_by_sens_id(sens_id)
+        if acc_id is None:
+            acc_id = 'null'
+        with db.engine.connect() as connection:
+            connection.execute("insert into sensor_readings "
+                               "values (default, {}, '{}', {}, {}, default, {})"
+                               .format( acc_id , sens_id, liquid, battery, rssi))
+            return True
+    except exc.SQLAlchemyError:
+        return False
+
+
+def add_reading_yes_time(sens_id, liquid, battery, time_stamp, rssi):
+    try:
+        acc_id = sensors.get_acc_id_by_sens_id(sens_id)
+        if acc_id is None:
+            acc_id = 'null'
+
+        with db.engine.connect() as connection:
+            connection.execute("insert into sensor_readings "
+                               "values (default, {}, '{}', {}, {}, {}, {})"
+                               .format( acc_id , sens_id, liquid, battery, time_stamp, rssi))
+            return True
+    except exc.SQLAlchemyError:
+        return False
+
+
 def get_sensor_data_points(sens_id):
     try:
         with db.engine.connect() as connection:
@@ -37,7 +70,6 @@ def get_sensor_data_points(sens_id):
             for row in result:
                 data.append(row)
             return data
-
     except exc.SQLAlchemyError:
         return False
 

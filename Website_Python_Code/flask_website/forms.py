@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
-
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+import flask_website.dbAPI.app as db
 
 class RegistrationForm(FlaskForm):
 
@@ -44,3 +44,23 @@ class SettingsForm(FlaskForm):
     newSensorGroup = StringField('Enter New Sensor Group')
     submit = SubmitField('Add Trigger')
     allTriggerValues = SelectField('who cares', choices = [])
+
+
+class RequestResetForm(FlaskForm):
+    email = StringField('Username',
+                        validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+    def validate_email(self,email):
+
+        user_email = db.accounts.get_id_by_email(email.data)
+        print(user_email)
+        if not user_email:
+            raise ValidationError('That Email doesnt Exist. You must Regsiter First')
+
+class ResetPasswordForm(FlaskForm):
+
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')

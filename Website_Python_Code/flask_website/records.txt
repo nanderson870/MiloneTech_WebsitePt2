@@ -1,0 +1,48 @@
+Recieved post at: 2020-11-16 11:30:38.846020
+{'Sensor ID': '201', 'Liquid %': 20, 'Battery %': 80, 'Time Stamp': '2022-10-30 15:09:23.872437'}Recieved post at: 2020-11-21 14:51:11.940785
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-21 14:52:13.384519
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-21 15:32:04.237642
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-21 15:33:13.466849
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-21 15:35:42.577895
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-21 15:36:36.525936
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-21 15:37:32.728968
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-21 15:38:30.126116
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-21 15:38:53.322064
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '15', 'Name': 'LoRaClient-FFFF', 'Liquid %': '100', 'Battery %': '89', 'RSSI': '-57'}], 'time stamp': 'Wed Dec 31 23:59:59 1969'}
+Recieved post at: 2020-11-30 17:32:36.707853
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 70, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:37:35.822590
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 69, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:39:13.037279
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 68, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:39:43.866092
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 67, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:40:31.383302
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 66, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:41:04.308543
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 59, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:42:31.284516
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 59, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:42:59.199631
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 59, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:44:40.602727
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 59, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:45:25.693814
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 59, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:46:56.321800
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 59, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:47:47.549471
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 59, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:53:14.206740
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 39, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 17:58:59.213463
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 39, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:00:28.856640
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 39, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:01:12.879624
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 39, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:10:35.982961
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 39, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:11:29.122710
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:16:48.490683
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:18:35.388752
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}, {'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 19, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:22:22.814527
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}, {'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 19, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:34:19.958601
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}, {'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 19, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:35:53.467690
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}, {'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 19, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:38:38.646994
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}, {'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 19, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:39:54.086106
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}, {'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 19, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:44:48.439935
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}, {'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 19, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:51:34.418985
+{'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 70, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:51:44.080959
+{'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 70, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}
