@@ -12,48 +12,42 @@ table, th, td {
 	    {{ form.csrf_token }}
             <fieldset class="form-group">
 			<legend class="border-bottom mb-4">Settings</legend>
-                <table>
+                <table id="trigger">
                         <tr>
                         <th>Sensor ID</th>
                         <th>Trigger Level</th>
                         <th>How do you want the alert?</th>
 			<th>Del</th>
                         </tr>
-			<div id="demo"></div>
-			<script>
-			var listOfDict = {{ account_info }};
-			var x ="", i;
-			var data1;
-			var IPAdress;
-			var table = document.getElementById("triggers");
-			var row = table.insertRow(1);
-			var SensorID;
-			var TriggerLevel;
-			var Howdoyouwantthealert;
-			var Del;
-			var tableData;
-			for (i = 0; i < listOfDict.length; i++) {
-
-				row = table.insertRow(i + 1);
-				data1 = listOfDict[i].indexOf('sensorID');
-				var endingIndex = listOfDict[i].indexOf('&', 27);
-				x =  "{{ sensorID }}";
-				IPAdress = listOfDict[i].substring(26, endingIndex);
-				SensorID = row.insertCell(0);
-				TriggerLevel = row.insertCell(1);	
-				Howdoyouwantthealert = row.insertCell(2);	
-				Del = row.insertCell(3);
-				SensorID.innerHTML = IPAdress;
-				TriggerLevel.innerHTML = "15%";
-				Howdoyouwantthealert.innerHTML = "Text";
-				Del.innerHTML = "X";
-				}
-			}
-			  </script>
+			{% for sensor_ID in form.sensorID %}
+				{% for triggerValue in form.allTriggerValues.choices %}
+					{% for item in triggerValue  %}
+						{% for i in item %}
+							<tr>
+							{% if ''+i[1] == sensor_ID.data %}
+							{{ i[1] }}					
+							<br>
+							{{ sensor_ID }}
+								<td> {{ sensor_ID }} </td>
+								<td> {{ i[2] }}% </td>
+								{% if i[3] == 1 %}
+									<td>text</td>
+								{% else %}
+									<td>email</td>
+								{% endif %}
+							<td>X</td>
+							{% endif %}
+							
+							</tr>
+						{% endfor %}
+					{% endfor %}	
+					
+				{% endfor %}
+			{% endfor %}
                 </div>
                 </div>
                 </table>
-		<legend class="border-bottom mb-4">add a new trigger</legend>
+		<legend class="border-bottom mb-4">Add a new trigger</legend>
 		<div class="content-section">
 		<div class="row">
 			<div class="col-auto">
@@ -70,7 +64,7 @@ table, th, td {
 				</div>
 			</div>
 			<div class="col">
-				{{ form.submit(class="btn btn-primary btn-sm") }}
+				{{ form.submit }}
 			</div>
 		</div>
 		</div>
