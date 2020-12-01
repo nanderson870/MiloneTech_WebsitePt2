@@ -35,11 +35,12 @@ class SensorAccountForm(FlaskForm):
 
 
 class SettingsForm(FlaskForm):
-    submit = SubmitField('Add Trigger')
-    sensorID = SelectField('Select to add trigger to Sensor', choices = [('temp value', 'changed in routes.py')])
-    textOrEmail = SelectField('Text or Email', choices = [('t', 'text'), ('e', 'email')])
-    level = StringField('Level', validators=[DataRequired()])
+    sensorID = SelectField('Select to add trigger to Sensor', choices = [('', 'Choose your Sensor')])
+    textOrEmail = SelectField('Text or Email', choices = [(1, 'text'), (0, 'email')])
+    level = StringField('Level')
     allSensorNames = SelectField('TODO: change in routes', choices = [('yes', 'no'), ('no', 'yes')])
     newSensorName = StringField('Enter Sensor\'s Name')
     sensorGroup = SelectField('ll', choices = [('lol', 'lol'), ('nope', 'nope')])
     newSensorGroup = StringField('Enter New Sensor Group')
+    submit = SubmitField('Add Trigger')
+    allTriggerValues = SelectField('who cares', choices = [])

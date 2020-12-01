@@ -200,18 +200,26 @@ def account():
 @app.route("/settings", methods=['GET', 'POST'])
 @login_required
 def settings():
+        db.sensors.add_sensor(541, 6868, 100, 'toxic', 'bobby')
         flash(db.sensors.get_sensor_info(6767), 'success')
-        flash(db.accounts.get_id_by_email(current_user.email), 'success')
-        flash(db.alerts.check_alerts(541, 6767), 'success')
+        flash(db.alerts.check_alerts(current_user.id, 6767), 'success')
+        flash(db.sensors.get_all_sensors(current_user.id), 'success')
         form = SettingsForm()
-        form.sensorID.choices = [('my', db.sensors.get_all_sensors(db.accounts.get_id_by_email(current_user.email)[0])[0])]
-        if form.validate_on_submit():
-            flash('here', 'success')
-            "db.alerts.add_sensor_alert(db.accounts.get_id_by_email(current_user.email)[0], 6767, '50%', 'e', null)"
+        for sensor in db.sensors.get_all_sensors(current_user.id):
+                form.sensorID.choices.append((sensor, sensor))
+                form.allTriggerValues.choices.append((db.alerts.check_alerts(current_user.id, sensor), db.alerts.check_alerts(current_user.id, sensor)))
+        flash(form.allTriggerValues, 'success')
+        if form.is_submitted():
+            flash(form.textOrEmail.data, 'success')
+            if form.textOrEmail.data == 1:
+                db.alerts.add_sensor_alert(current_user.id, form.sensorID.data, form.level.data, 1, 0)
+            else:
+                db.alerts.add_sensor_alert(current_user.id, form.sensorID.data, form.level.data, 0, 1)
             db.sensors.set_sensor_name(6767, form.newSensorName)
-            flash('here', 'success')
+            flash(form.sensorID.data, 'success')
         else:
-            flash('failed validate on submit', 'danger')
+            flash('no submit yet', 'danger')
+        flash(current_user.user_data, 'danger')
         return render_template('settings.html', title='Settings', form=form, account_info=current_user.user_data)
 
 @app.route("/logout")
