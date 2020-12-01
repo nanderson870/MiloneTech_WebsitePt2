@@ -24,12 +24,12 @@ def get_acc_id_by_sens_id(sens_id):
         return False
 
 
-def add_sensor(acc_id, sens_id, sens_size, sens_type, name):
+def add_sensor(sens_id, sens_size = 10, sens_type = 'norm', sens_time = 60):
     try:
         with db.engine.connect() as connection:
             connection.execute("insert into sensors "
-                               "values ({}, '{}', {}, '{}', '{}', default, null)"
-                               .format(acc_id, sens_id, sens_size, sens_type, name))
+                               "values ( null , '{}', {}, '{}', null ,'{}',null)"
+                               .format(sens_id, sens_size, sens_type, sens_time))
             return True
     except exc.SQLAlchemyError:
         return False
@@ -97,11 +97,13 @@ def get_sensor_time_between(sens_id):
     try:
         with db.engine.connect() as connection:
 
-            time = connection.execute("select timeBetweenReadings "
+            time = []
+            result = connection.execute("select timeBetweenReadings "
                                       "from sensors "
                                       "where sensorID = '{}'"
                                       .format(sens_id))
-
+            for row in result:
+                time.append(row)
             return time[0]
 
     except exc.SQLAlchemyError:

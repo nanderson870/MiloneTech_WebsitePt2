@@ -177,28 +177,105 @@ def register():
     
     return render_template('register.html', title='Register', form=form)
 
-
-# SAMPLE
 @app.route("/sensor", methods=['POST'])
 def sensor():
 
     data_string = "Recieved post at: %s\n" % datetime.datetime.now()
     print(data_string)
     data = request.json
-    print(data)
-    print(type(data))
-    data_string = data_string + str(data) + "\n"
+    data_string = data_string + str(data)
 
     with open('./flask_website/records.txt', 'a') as f:
         f.write(data_string)
 
     sensorID = data["Sensor ID"]
 
+    '''all assuming that the sensor already exists in the DB'''
+    curr_sensor_info = db.sensors.get_sensor_info(sensorID)
+
+    if curr_sensor_info and curr_sensor_info[0][0] is not None:
+
+        sensor_name = curr_sensor_info[0][4]
+
+        #if the sensor_name is Null in DB, just make it equal to the sensorID
+        if not sensor_name:
+            sensor_name = sensorID
+
+        owner_acc_info = db.accounts.get_all_by_id(curr_sensor_info[0][0])
+        '''owner_acc_info structure FOR NOW
+        (acc_id, 'acc_email', fname , lname, number, pass_hash, is_paid)'''
+
+        curr_sensor_alerts = db.alerts.check_alerts(sensorID)
+        '''curr_sensor_alerts structure FOR NOW
+        [(rec num,acc_id, 'sens_id', trig_lev , email? (0/1/2), text? (0/1/2))]'''
+
+        for poss_alert in curr_sensor_alerts:
+
+            for entry in data["Sensor Data"]:
+
+                email_alert_enc = poss_alert[4]
+                text_alert_enc = poss_alert[5]
+                hit = False
+
+                if entry["Liquid %"] >= poss_alert[3]:
+
+                    '''(to_email, sensor, curr_user_name, alert_level, curr_level):'''
+                    if email_alert_enc == 2:
+                        email_alert_enc = 1
+                        hit = True
+                        pass
+
+                    if  text_alert_enc == 2:
+                        text_alert_enc = 1
+                        hit = True
+                        pass
+
+                    if hit:
+                        db.alerts.set_alert_type(poss_alert[0], email_alert_enc, text_alert_enc)
+                        break
+
+
+        #Code for sending out an email if the level is un-triggered
+        for poss_alert in curr_sensor_alerts:
+
+            for entry in data["Sensor Data"]:
+
+                email_alert_enc = poss_alert[4]
+                text_alert_enc = poss_alert[5]
+                hit = False
+
+                if entry["Liquid %"] < poss_alert[3]:
+
+                    '''(to_email, sensor, curr_user_name, alert_level, curr_level):'''
+                    if email_alert_enc == 1:
+                        full_name = owner_acc_info[2] + " " + owner_acc_info[3]
+                        email.send_email_notification(owner_acc_info[1],sensor_name, full_name ,poss_alert[3],entry["Liquid %"])
+                        email_alert_enc += 1
+                        hit = True
+                        pass
+
+                    if  text_alert_enc == 1:
+                        #CODE FOR SENDING AN TEXT
+                        text_alert_enc += 1
+                        hit = True
+                        pass
+
+                    if hit:
+                        db.alerts.set_alert_type(poss_alert[0], email_alert_enc, text_alert_enc)
+                        break
+
+    else:
+        #the sensor doesn't exist in the db... create it
+        # (TODO) FOR NOW with default values
+        db.sensors.add_sensor(sensorID)
+
+
+
     for entry in data["Sensor Data"]:
         db.sensor_readings.add_reading_no_time(sensorID, entry["Liquid %"], entry["Battery %"],
                                                entry["RSSI"])
 
-    time_response = db.sensors.get_sensor_time_between(sensorID)
+    time_response = str(db.sensors.get_sensor_time_between(sensorID)[0])
     print(time_response)
     print(type(time_response))
 
@@ -275,32 +352,5 @@ def reset_token(token):
         flash(f'Your password has been updated! You may now Login', 'success')
         return redirect(url_for('login'))
 
-
-
-
     return render_template('reset_token.html', title = "Reset Password", form=form)
 
-'''fig = Figure()
-plt = fig.add_subplot(1, 1, 1)
-
-plt.set_ylim(0, 100)
-plt.set_xlim(0, len(curr_sensor["x_vals"]))
-# naming the x axis
-plt.set_xlabel('Reading Times')
-# naming the y axis
-plt.set_ylabel('Sensor Levels')
-
-# giving a title to my graph
-plt.set_title('Sensor data for %s' % curr_sensor["name"])
-
-plt.plot(curr_sensor["x_vals"], curr_sensor["y_vals"], color='green', linestyle='dashed',
-         linewidth=3, marker='o', markerfacecolor='blue', markersize=12)
-
-# Convert plot to PNG image
-pngImage = io.BytesIO()
-FigureCanvas(fig).print_png(pngImage)
-
-pngImageB64String = "data:image/png;base64,"
-pngImageB64String += base64.b64encode(pngImage.getvalue()).decode('utf8')
-
-curr_sensor["image"] = pngImageB64String'''

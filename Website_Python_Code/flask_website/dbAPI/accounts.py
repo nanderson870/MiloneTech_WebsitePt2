@@ -38,6 +38,19 @@ def get_email_by_id(account_id):
     except exc.SQLAlchemyError:
         return False
 
+def get_all_by_id(account_id):
+    try:
+        with db.engine.connect() as connection:
+            info = []
+            result = connection.execute("select * "
+                                        "from accounts "
+                                        "where accountID = {}"
+                                        .format(account_id))
+            for row in result:
+                info.append(row)
+            return info[0]
+    except exc.SQLAlchemyError:
+        return False
 
 def get_phone_by_id(account_id):
     try:

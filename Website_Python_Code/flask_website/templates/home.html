@@ -90,20 +90,30 @@
             Times are represented in EST
 {% else %}
 
-        {% for sensor in account_info.sensor_data %}
+        {% for groupname, group in account_info.sensor_data.items() %}
 
-            <article class="media content-section">
+            <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
 
-              <div class="media-body">
-                  <h3> <b>{{ sensor.name }}</b><br><br> Level: {{ sensor.y_vals[-1] }}</h3>
+                {% for sensorID, sensor in group.items() %}
 
-               <h3>Battery Level: {{ sensor.bat_level }} %</h3>
+                    <article class="media content-section">
 
-              </div>
+                      <div class="media-body">
 
-            </article>
+                      <h3 style="text-align: left">Sensor: {{ sensor.name }}, Level: {{ sensor.y_vals[-1] }}</h3>
 
-        {% endfor %}
+
+
+                      <div class = "battery col-md-6" style="color : green; font-size: 32px; background: rgba(0, 128, 0, 0.3); text-align: center">Battery Level: {{ sensor.bat_level }} %</div>
+
+                      </div>
+
+
+                    </article>
+
+                {% endfor %}
+                </div>
+            {% endfor %}
 
     {% endif %}
 

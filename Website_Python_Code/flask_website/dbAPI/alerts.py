@@ -5,18 +5,18 @@ from . import db
 class Alerts(db.Base):
     __table__ = db.Base.metadata.tables['alerts']
 
-
-def check_alerts(acc_id, sens_id):
+def check_alerts(sens_id):
     try:
         with db.engine.connect() as connection:
             existing_alerts = []
             result = connection.execute("select * "
                                         "from alerts "
-                                        "where accountID = {} and sensorID = '{}'"
-                                        .format(acc_id, sens_id))
+                                        "where sensorID = '{}'"
+                                        .format(sens_id))
             for row in result:
                 existing_alerts.append(row)
             return existing_alerts
+
     except exc.SQLAlchemyError:
         return False
 
@@ -54,17 +54,17 @@ def remove_alert(acc_id, sens_id):
         return False
 
 
-def get_alert_type(acc_id, sens_id):
+def set_alert_type(alert_num, new_email, new_text):
     try:
         with db.engine.connect() as connection:
-            alert_type = []
-            result = connection.execute(
-                "select alertEmail, alertPhone "
-                "from alerts "
-                "where accountID = {} and sensorID = '{}'"
-                .format(acc_id, sens_id))
-            for row in result:
-                alert_type.append(row)
-            return alert_type[0]
-    except exc.SQLAlchemyError:
+            connection.execute(
+                "update alerts "
+                "set alertPhone = {}, alertEmail = {} "
+                "where alertsNum = {}"
+                .format(new_email, new_text, alert_num))
+
+            return True
+
+    except exc.SQLAlchemyError as e:
+        print(e)
         return False

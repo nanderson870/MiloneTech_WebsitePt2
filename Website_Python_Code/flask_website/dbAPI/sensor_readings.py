@@ -9,10 +9,13 @@ class SensorReadings(db.Base):
 
 def add_reading_no_time(sens_id, liquid, battery, rssi):
     try:
+        acc_id = sensors.get_acc_id_by_sens_id(sens_id)
+        if acc_id is None:
+            acc_id = 'null'
         with db.engine.connect() as connection:
             connection.execute("insert into sensor_readings "
                                "values (default, {}, '{}', {}, {}, default, {})"
-                               .format(sensors.get_acc_id_by_sens_id(sens_id), sens_id, liquid, battery, rssi))
+                               .format( acc_id , sens_id, liquid, battery, rssi))
             return True
     except exc.SQLAlchemyError:
         return False
@@ -20,10 +23,14 @@ def add_reading_no_time(sens_id, liquid, battery, rssi):
 
 def add_reading_yes_time(sens_id, liquid, battery, time_stamp, rssi):
     try:
+        acc_id = sensors.get_acc_id_by_sens_id(sens_id)
+        if acc_id is None:
+            acc_id = 'null'
+
         with db.engine.connect() as connection:
             connection.execute("insert into sensor_readings "
                                "values (default, {}, '{}', {}, {}, {}, {})"
-                               .format(sensors.get_acc_id_by_sens_id(sens_id), sens_id, liquid, battery, time_stamp, rssi))
+                               .format( acc_id , sens_id, liquid, battery, time_stamp, rssi))
             return True
     except exc.SQLAlchemyError:
         return False

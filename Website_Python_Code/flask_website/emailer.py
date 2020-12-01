@@ -34,6 +34,29 @@ If you did not make this request, then simply ignore this email and no changes w
     send_mail(to_email,message)
 
 
+def send_email_notification(to_email, sensor, curr_user_name, alert_level, curr_level):
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Liquid Level alert from UsersMiloneTech.com"
+    message["From"] = sender_email
+    message["To"] = to_email
+
+    text = f'''
+ATTENTION {curr_user_name}, we have just gotten a reading from your sensor, {sensor}
+and it has reached below its designated alert level of {alert_level} to {curr_level}
+
+Please check it if you see fit.
+Have a great day!
+    '''
+
+    # Turn these into plain/html MIMEText objects
+    part1 = MIMEText(text, "plain")
+
+    # Add HTML/plain-text parts to MIMEMultipart message
+    # The email client will try to render the last part first
+    message.attach(part1)
+    send_mail(to_email, message)
+
+
 def send_mail(to_email, message):
 
     try:
@@ -42,7 +65,6 @@ def send_mail(to_email, message):
         server.starttls(context=context) # Secure the connection
         server.ehlo() # Can be omitted
         server.login(sender_email, password)
-        print("We got em boys")
 
         server.sendmail(sender_email, to_email, message.as_string())
 
