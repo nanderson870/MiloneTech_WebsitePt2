@@ -43,7 +43,10 @@ class SettingsForm(FlaskForm):
     sensorGroup = SelectField('ll', choices = [('lol', 'lol'), ('nope', 'nope')])
     newSensorGroup = StringField('Enter New Sensor Group')
     submit = SubmitField('Add Trigger')
-    allTriggerValues = SelectField('who cares', choices = [])
+    alerts = SelectField('', choices =[('', 'Choose an alert to remove')])
+    removeAlert = SubmitField('Remove Alert')
+    changeName = SubmitField('Change Name')
+    changeGroup = SubmitField('Change Group')
 
 
 class RequestResetForm(FlaskForm):
