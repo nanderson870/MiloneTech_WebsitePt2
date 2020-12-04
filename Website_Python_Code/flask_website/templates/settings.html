@@ -14,44 +14,42 @@ table, th, td {
 			<legend class="border-bottom mb-4">Settings</legend>
                 <table id="trigger">
                         <tr>
+			<th>Alert #</th>
                         <th>Sensor ID</th>
+			<th>Sensor Name</th>
                         <th>Trigger Level</th>
                         <th>How do you want the alert?</th>
-			<th>Del</th>
                         </tr>
-			{% for sensor_ID in form.sensorID %}
-				{% for triggerValue in form.allTriggerValues.choices %}
-					{% for item in triggerValue  %}
-						{% for i in item %}
-							<tr>
-							{% if ''+i[1] == sensor_ID.data %}
-							{{ i[1] }}					
-							<br>
-							{{ sensor_ID }}
-								<td> {{ sensor_ID }} </td>
-								<td> {{ i[2] }}% </td>
-								{% if i[3] == 1 %}
-									<td>text</td>
-								{% else %}
-									<td>email</td>
-								{% endif %}
-							<td>X</td>
-							{% endif %}
-							
-							</tr>
-						{% endfor %}
-					{% endfor %}	
-					
+			{% for alert in alerts %}
+				<tr>
+				<td> {{ alert[0] }} </td>
+				<td> {{ alert[2] }} </td>
+				{% for sensor_ID_to_name in form.sensorID.choices  %}
+					{% if sensor_ID_to_name[0] == alert[2] %}
+						<td> {{ sensor_ID_to_name[1] }} </td>
+					{% endif %}
 				{% endfor %}
+				<td> {{ alert[3] }}% </td>
+				{% if alert[4] == 1 %}
+					<td>text</td>
+				{% else %}
+					<td>email</td>
+				{% endif %}
+				</tr>
 			{% endfor %}
                 </div>
                 </div>
                 </table>
-		<legend class="border-bottom mb-4">Add a new trigger</legend>
+		<br>
+		<div class="content-section">
+		<legend class="border-bottom mb-4">Choose Sensor to Update</legend>
+		<center>
+		{{ form.sensorID}}
+		</center>
+		<legend class="border-bottom mb-4">Add a New Alert to Chosen Sensor</legend>
 		<div class="content-section">
 		<div class="row">
 			<div class="col-auto">
-				{{ form.sensorID }}
 				<div class="row>
 				</div>
 				<div class="row">
@@ -59,7 +57,7 @@ table, th, td {
                                         	{{ form.level(placeholder="Level") }}
                                         </div>
                                         <div class="col-auto">
-						{{ form.textOrEmail(choices=[('s','s'), ('a','a')]) }}
+						{{ form.textOrEmail }}
                                         </div>
 				</div>
 			</div>
@@ -68,25 +66,23 @@ table, th, td {
 			</div>
 		</div>
 		</div>
-		<legend class="border-bottom mb-4">Change a sensor name</legend>
+		<legend class="border-bottom mb-4">Change Chosen Sensor Name</legend>
 		<div class="content-section">
 		<div class="row">
 			<div class="col">
-				{{form.sensorID }}
 			</div>
 			<div class="col">
                                 {{form.newSensorName }}
                         </div>
 			<div class="col">
-                                {{form.submit }}
+                                {{form.changeName(class="btn btn-outline-info") }}
                         </div>
 		</div>
 		</div>
-		<legend class="border-bottom mb-4">Change sensor group</legend>
+		<legend class="border-bottom mb-4">Change Sensor Group of Chosen Sensor</legend>
 		<div class="content-section">
 		<div class="row">
                         <div class="col-4">
-                                {{ form.sensorID }}
                         </div>
                         <div class="col-4">
                                 <div class="row-my-5">
@@ -97,11 +93,27 @@ table, th, td {
                                 </div>
                         </div>
                         <div class="col-2">
-                                {{ form.submit(class="btn btn-outline-info") }}
+                                {{ form.changeGroup(class="btn btn-outline-info") }}
                         </div>
                 </div>
 
 		</div>
+		</div>
+		<legend class="border-bottom mb-4">Delete Alert</legend>
+                <div class="content-section">
+                <div class="row">
+                        <div class="col-8">
+                                <div class="row-my-5">
+                                        Alert #: {{ form.alerts }}
+                                </div>
+                        </div>
+                        <div class="col-2">
+                                {{ form.removeAlert(class="btn btn-outline-info") }}
+                        </div>
+                </div>
+
+                </div>
+
 	    </fieldset>
         </form>
     </div>

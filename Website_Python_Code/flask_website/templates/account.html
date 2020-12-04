@@ -9,7 +9,7 @@
                 <div class="form-group">
 		<div class="row">
 		    <div class="col-2">
-                    {{ account_info.email }}
+                    {{ currentUser.email }}
 		    </div>
                     {% if form.newEmail.errors %}
                         {{ form.newEmail(class="form-control form-control-lg is-invalid") }}
