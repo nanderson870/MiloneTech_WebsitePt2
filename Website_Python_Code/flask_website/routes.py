@@ -297,22 +297,20 @@ def account():
     if form.validate_on_submit():
         if form.newEmail.data != '':
             db.accounts.set_account_email(current_user.email, form.newEmail.data)
-            flash('email updated', 'success')
+            flash('email updated. New Email: ' + current_user.email, 'success')
         if form.phoneNumber.data != '':
             db.accounts.set_account_phone(current_user.email, form.phoneNumber.data)
-            flash('phone number updated', 'success')
+            flash('phone number updated. New Phone Number:' + form.phoneNumber.data, 'success')
         if form.password.data != '':
             hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
             if form.password.data == form.confirmPassword.data:
                 db.accounts.set_account_password(hashed_pass, current_user.email)
                 flash('password updated', 'success')
-    else:
-        flash('button not pressed', 'danger')
     if sensorAccountForm.validate_on_submit():
         if sensorAccountForm.sensorID.data != '':
             flash('sensor ID: ' + sensorAccountForm.sensorID.data + ' has been added to your account', 'success')
             db.sensors.add_sensor_to_account(sensorAccountForm.sensorID.data, current_user.email)
-            db.accounts.set_account_payment_tier(0, current_user.email)
+            #db.accounts.set_account_payment_tier(0, current_user.email) Proof that it does Work. TODO: Make it work.
     return render_template('account.html', title='Account', form=form, sensorAccountForm=sensorAccountForm, account_info=current_user.user_data, currentUser = current_user)
 
 
@@ -326,19 +324,20 @@ def settings():
                 alerts += db.alerts.check_alerts(sensor)
         alerts.sort()
         for alert in alerts:
-            form.alerts.choices.append((alert, alert[0]))
+            form.alerts.choices.append((alert[0], alert[0]))
         if form.is_submitted():
-            if form.textOrEmail.data == 1:
+            if int(form.textOrEmail.data) == 1:
                 db.alerts.add_sensor_alert(current_user.id, form.sensorID.data, form.level.data, 1, 0)
+                flash('Successfully Added Email Alert', 'success')
             else:
                 db.alerts.add_sensor_alert(current_user.id, form.sensorID.data, form.level.data, 0, 1)
+                flash('Successfully Added Text Alert', 'success')
             if not form.alerts.data == '':
-                pass
-                #db.alerts.remove_alert(current_user.id, form.alerts.data)
-            db.sensors.set_sensor_name(form.sensorID.data, form.newSensorName.data)
-            flash(form.newSensorName.data + ' ' + form.sensorID.data, 'success')
-        else:
-            flash('no submit yet', 'danger')
+                db.alerts.remove_alert(form.alerts.data)
+                flash('Successfully removed Alert #: ' + form.alerts.data, 'success')
+            if not form.newSensorName.data == '':
+                db.sensors.set_sensor_name(form.sensorID.data, form.newSensorName.data)
+                flash('Changed Current Sensor Name to: ' + form.sensorID.data, 'success')
         return render_template('settings.html', title='Settings', form=form, account_info=current_user.user_data, alerts=alerts)
 
 @app.route("/logout")
