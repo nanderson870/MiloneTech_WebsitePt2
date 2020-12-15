@@ -64,26 +64,24 @@ table, th, td {
 		<legend class="border-bottom mb-4">Change Chosen Sensor Name</legend>
 		<div class="content-section">
 		<div class="row">
-			<div class="col-9">
+			<div class="col-8">
                                 {{form.newSensorName(class="form-control form-control-block form-control-lg", placeholder="New Sensor Name") }}
                         </div>
 			<div class="col-1">
-                                {{form.changeName(class="btn btn-outline-warning brn-lg") }}
+                                {{form.changeName(class="btn btn-outline-warning btn-lg") }}
                         </div>
 		</div>
 		</div>
 		<legend class="border-bottom mb-4">Change Sensor Group of Chosen Sensor</legend>
 		<div class="content-section">
 		<div class="row">
-			<div class="col-1">
-			</div>
-                        <div class="col-3">
+                        <div class="col-5 mr-0 ml-0">
                         	{{ form.sensorGroup(class="btn btn-primary btn-lg") }}
 			</div>
-			<div class="col-4">
-                        	{{ form.newSensorGroup(class="form-control form-control-lg", placeholder="New Group") }}
+			<div class="col-3 mr-0 ml-0">
+                        	{{ form.newSensorGroup(class="form-control form-control-lg", placeholder="NewGroup") }}
                         </div>
-                        <div class="col-2">
+                        <div class="col-1">
                                 {{ form.changeGroup(class="btn btn-outline-warning btn-lg") }}
                         </div>
                 </div>
