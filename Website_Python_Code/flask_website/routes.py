@@ -319,10 +319,6 @@ def account():
 @app.route("/settings", methods=['GET', 'POST'])
 @login_required
 def settings():
-        db.sensors.add_sensor(541, 6868, 100, 'toxic', 'bobby')
-        flash(db.sensors.get_sensor_info(6767), 'success')
-        flash(db.alerts.check_alerts(current_user.id, 6767), 'success')
-        flash(db.sensors.get_all_sensors(current_user.id), 'success')
         form = SettingsForm()
         for sensor in db.sensors.get_all_sensors(current_user.id):
                 form.sensorID.choices.append((sensor, sensor))

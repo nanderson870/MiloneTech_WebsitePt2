@@ -46,3 +46,53 @@ Recieved post at: 2020-11-30 17:32:36.707853
 {'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 20, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}, {'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 19, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:51:34.418985
 {'Sensor ID': '0004A30B00F1DAAA', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 70, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}Recieved post at: 2020-11-30 18:51:44.080959
 {'Sensor ID': '0004A30B00F1DA7A', 'Sensor Data': [{'Entry #': '0', 'Name': 'LoRaClient-FFFF', 'Liquid %': 70, 'Battery %': 74, 'RSSI': -66, 'Time Stamp': 'Sat Nov 14 23:05:55 2020'}]}
+
+
+
+{
+"email":
+"Payment_tier":
+"sensor_data":[
+
+    "group_1":{
+
+        'sensor_ID'{'name'
+          'x_vals'
+          'y_vals'
+          'bat_level'
+        }
+        'sensor_ID'{'name'
+          'x_vals'
+          'y_vals'
+          'bat_level'
+        }
+        'sensor_ID'{'name'
+          'x_vals'
+          'y_vals'
+          'bat_level'
+        }
+
+    }
+    "group_2":{
+
+        'sensor_ID'{'name'
+          'x_vals'
+          'y_vals'
+          'bat_level'
+        }
+
+    }
+]
+
+}
+
+
+
+
+
+
+
+
+
+
+
