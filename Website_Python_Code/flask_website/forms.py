@@ -36,14 +36,17 @@ class SensorAccountForm(FlaskForm):
 
 class SettingsForm(FlaskForm):
     sensorID = SelectField('Select to add trigger to Sensor', choices = [('', 'Choose your Sensor')])
-    textOrEmail = SelectField('Text or Email', choices = [(1, 'text'), (0, 'email')])
+    textOrEmail = SelectField('Text or Email', choices = [(0, 'text'), (1, 'email')])
     level = StringField('Level')
     allSensorNames = SelectField('TODO: change in routes', choices = [('yes', 'no'), ('no', 'yes')])
     newSensorName = StringField('Enter Sensor\'s Name')
-    sensorGroup = SelectField('ll', choices = [('lol', 'lol'), ('nope', 'nope')])
+    sensorGroup = SelectField('ll', choices = [('', 'Choose Sensor Group')])
     newSensorGroup = StringField('Enter New Sensor Group')
     submit = SubmitField('Add Trigger')
-    allTriggerValues = SelectField('who cares', choices = [])
+    alerts = SelectField('', choices =[('', 'Choose an alert to remove')])
+    removeAlert = SubmitField('Remove Alert')
+    changeName = SubmitField('Change Name')
+    changeGroup = SubmitField('Change Group')
 
 
 class RequestResetForm(FlaskForm):
