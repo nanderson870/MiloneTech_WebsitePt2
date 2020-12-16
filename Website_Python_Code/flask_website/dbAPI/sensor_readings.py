@@ -1,10 +1,6 @@
 from sqlalchemy import exc
 from . import db
 from . import sensors
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/isaac_2
 
 class SensorReadings(db.Base):
     __table__ = db.Base.metadata.tables['sensor_readings']

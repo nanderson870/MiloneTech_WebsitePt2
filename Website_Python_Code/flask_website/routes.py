@@ -73,7 +73,12 @@ class User(UserMixin):
                 curr_sensor["name"] = sensor_data[4]
                 curr_sensor["x_vals"] = []
                 curr_sensor["y_vals"] = []
-                curr_sensor["bat_level"] = db.sensor_readings.get_sensor_battery(sensor)
+                curr_sensor["type"] = sensor_data[3]
+                battery_lev = db.sensor_readings.get_sensor_battery(sensor)
+                if battery_lev:
+                    curr_sensor["bat_level"] = battery_lev
+                else:
+                    curr_sensor["bat_level"] = 0
 
                 sensor_values = db.sensor_readings.get_sensor_data_points(sensor)
                 counter = 0
@@ -274,11 +279,12 @@ def sensor():
     else:
         #the sensor doesn't exist in the db... create it
         # (TODO) FOR NOW with default values
-        db.sensors.add_sensor(sensorID)
+        db.sensors.add_sensor(sensorID,data["Sensor Leng"], data["Sensor Type"])
 
 
 
     for entry in data["Sensor Data"]:
+        print()
         db.sensor_readings.add_reading_no_time(sensorID, entry["Liquid %"], entry["Battery %"],
                                                entry["RSSI"])
 
@@ -324,6 +330,7 @@ def settings():
                 alerts += db.alerts.check_alerts(sensor)
                 form.sensorGroup.choices.append((db.sensors.get_sensor_info(sensor)[0][6], db.sensors.get_sensor_info(sensor)[0][6]))
         alerts.sort()
+
         for alert in alerts:
             form.alerts.choices.append((alert[0], alert[0]))
         if form.is_submitted():
