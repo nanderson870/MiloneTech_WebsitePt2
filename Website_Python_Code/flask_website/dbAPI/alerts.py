@@ -57,18 +57,7 @@ def remove_alert(alert_num):
 def set_alert_type(alert_num, new_email, new_text):
     try:
         with db.engine.connect() as connection:
-<<<<<<< HEAD
-            alert_type = []
-            result = connection.execute(
-                "select alertEmail, alertPhone "
-                "from alerts "
-                "where accountID = {} and sensorID = '{}'"
-                .format(acc_id, sens_id))
-            for row in result:
-                alert_type.append(row)
-            return alert_type[0]
-    except exc.SQLAlchemyError:
-=======
+
             connection.execute(
                 "update alerts "
                 "set alertPhone = {}, alertEmail = {} "
@@ -79,5 +68,5 @@ def set_alert_type(alert_num, new_email, new_text):
 
     except exc.SQLAlchemyError as e:
         print(e)
->>>>>>> origin/isaac_2
+
         return False
