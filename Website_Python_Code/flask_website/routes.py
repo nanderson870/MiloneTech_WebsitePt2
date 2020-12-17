@@ -326,9 +326,14 @@ def settings():
         form = SettingsForm()
         alerts = []
         for sensor in db.sensors.get_all_sensors(current_user.id):
-                form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][4]))
+                if db.sensors.get_sensor_info(sensor)[0][4] == None:
+                    form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][2]))
+                else:
+                    form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][4]))
                 alerts += db.alerts.check_alerts(sensor)
-                form.sensorGroup.choices.append((db.sensors.get_sensor_info(sensor)[0][6], db.sensors.get_sensor_info(sensor)[0][6]))
+                if not db.sensors.get_sensor_info(sensor)[0][6] == None:
+                    if db.sensors.get_sensor_info(sensor)[0][6] not in form.sensorGroup.choices:
+                        form.sensorGroup.choices.append((db.sensors.get_sensor_info(sensor)[0][6], db.sensors.get_sensor_info(sensor)[0][6]))
         alerts.sort()
 
         for alert in alerts:
