@@ -97,6 +97,11 @@ class User(UserMixin):
                     curr_sensor["y_vals"].append(data_point[3])
                     counter = counter + 1
 
+                if len(curr_sensor['y_vals']) > 20:
+                    num_readings = len(curr_sensor['y_vals'])
+                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 20:]
+                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 20:]
+
                 data["sensor_data"][group][sensor] = curr_sensor
 
         self.user_data = data
@@ -267,9 +272,10 @@ def sensor():
                         pass
 
                     if  text_alert_enc == 1:
-                        #CODE FOR SENDING AN TEXT
-                        text_alert_enc += 1
-                        hit = True
+                        if owner_acc_info[4]:
+                            email.send_text_notification(owner_acc_info[4], sensor_name, full_name ,poss_alert[3],entry["Liquid %"])
+                            text_alert_enc += 1
+                            hit = True
                         pass
 
                     if hit:

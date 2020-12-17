@@ -48,13 +48,50 @@ Please check it if you see fit.
 Have a great day!
     '''
 
-    # Turn these into plain/html MIMEText objects
     part1 = MIMEText(text, "plain")
-
-    # Add HTML/plain-text parts to MIMEMultipart message
-    # The email client will try to render the last part first
     message.attach(part1)
     send_mail(to_email, message)
+
+possible_endings = ['@txt.att.net','@sms.myboostmobile.com','@messaging.sprintpcs.com','@tmomail.net', '@vtext.com']
+
+def parse_num(num_to_be):
+
+    finished = ""
+    for char in num_to_be:
+        if char.isdigit():
+            finished = finished + char
+
+    if len(finished) == 10:
+        return finished
+    else:
+        return False
+
+def send_text_notification(to_number, sensor, curr_user_name, alert_level, curr_level):
+
+    text = f'''
+    ATTENTION {curr_user_name}, we have just gotten a reading from your sensor, {sensor}
+    and it has reached below its designated alert level of {alert_level} to {curr_level}
+
+    Please check it if you see fit.
+    Have a great day!
+        '''
+
+    to_number = parse_num(to_number)
+
+    for ending in possible_endings:
+
+        send_to = to_number + ending
+        send_text(send_to, text)
+
+def send_text(target_number, message):
+    # Now we use the MIME module to structure our message.
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = target_number
+
+    body = message + "\n"
+    msg.attach(MIMEText(body, 'plain'))
+    send_mail(target_number, msg)
 
 
 def send_mail(to_email, message):

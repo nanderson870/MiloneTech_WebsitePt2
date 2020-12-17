@@ -169,7 +169,7 @@ def set_account_phone(phone, email):
             connection.execute("update accounts "
                                "set phoneNumber = '{}' "
                                "where accountEmail = '{}'"
-                               .format(phone, email))
+                               .format(email,phone))
             return True
     except exc.SQLAlchemyError:
         return False
