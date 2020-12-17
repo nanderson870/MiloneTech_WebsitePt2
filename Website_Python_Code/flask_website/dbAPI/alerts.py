@@ -48,7 +48,6 @@ def remove_alert(alert_num):
         with db.engine.connect() as connection:
             connection.execute("delete from alerts "
                                "where alertsNum = %s;", (alert_num,))
-                               "where alertsNum = %s;", (alert_num,))
             return True
     except exc.SQLAlchemyError:
         return False
