@@ -1,15 +1,9 @@
 
 
-
-
 /*[
-
  Milone Wifi+LoRa Web Server
-
  Adafruit Feather M0 WiFi - ATSAMD21 + ATWINC1500
  PRODUCT ID: 3010
-
-
  */
 //#include <Time.h>
 //#include <TimeLib.h>
@@ -48,13 +42,13 @@
 int led = LED_BUILTIN;
 int status = WL_IDLE_STATUS;
 //Change to your server domain
-char serverName[] = "www.ptsv2.com";
 //char serverName[] = "usersmilonetech.com";
+char serverName[] = "18.222.60.137"; //IP address of our server
 // change to your server's port
-int serverPort = 443; //Added by Ethan A.
+int serverPort = 80; //Added by Ethan A.
 // change to the page on that server
-char pageName[] = "/t/sensor/post"; //Added by Ethan A.
-//char pageName[] = "/sensor";
+//Added by Ethan A.
+char pageName[] = "/sensor";
 unsigned long thisMillis = 0; //Added by Ethan A.
 unsigned long lastMillis = 0; //Added by Ethan A.
 //record_t rx_record;
@@ -631,7 +625,6 @@ void loop() {
                  records[i].clientIP = rx_record.clientIP;
                  records[i].batteryVoltage = rx_record.batteryVoltage;
                  records[i].sensorReading  = rx_record.sensorReading;
-
                  inserted = true;
                  }
                  }
@@ -1392,10 +1385,11 @@ void loop() {
     digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 }
 
-
+//Added by Ethan Armbruster
 byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
 {
-  WiFiSSLClient clientPOST;
+  //WiFiSSLClient clientPOST;
+  WiFiClient clientPOST;
   int inChar;
   char outBuf[64];
 
@@ -1458,13 +1452,8 @@ void postData() //Added by Ethan A.
 
    for (int i = 0; i < MAX_RECORDS; i++) {
       if (records[i].valid) {
-           time_t now = time(0);
    
-           char* dt = ctime(&now);
-           //String cTime = dt;
-           Serial.print(dt);
-         
-         
+           String dt= ctime(&records[i].timestamp);
          doc["Sensor ID"] = records[i].id;
          JsonArray sensorInfo = doc.createNestedArray("Sensor Data"); 
          JsonObject sensData = sensorInfo.createNestedObject();
@@ -1486,7 +1475,7 @@ void postData() //Added by Ethan A.
          memset(tmp, 0, sizeof(tmp));
          sprintf(tmp, "%d", records[i].rssi);
          sensData["RSSI"] = tmp;         
-        // sensData["Time Stamp"] = dt;
+         sensData["Time Stamp"] = dt;
          serializeJsonPretty(doc, bodyBuff);
          doc.garbageCollect();
        }
