@@ -97,10 +97,10 @@ class User(UserMixin):
                     curr_sensor["y_vals"].append(data_point[3])
                     counter = counter + 1
 
-                if len(curr_sensor['y_vals']) > 80:
+                if len(curr_sensor['y_vals']) > 4:
                     num_readings = len(curr_sensor['y_vals'])
-                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 80:]
-                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 80:]
+                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 4:]
+                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 4:]
 
                 data["sensor_data"][group][sensor] = curr_sensor
 
