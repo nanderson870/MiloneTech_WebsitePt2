@@ -23,7 +23,7 @@
 
                             // Global Options
                             Chart.defaults.global.defaultFontFamily = 'Lato';
-                            Chart.defaults.global.defaultFontSize = 18;
+                            Chart.defaults.global.defaultFontSize = 18; //Effects x and y's number font size
                             Chart.defaults.global.defaultFontColor = '#777';
 
                             var linechart = new Chart(myChart{{sensorID}}, {
@@ -34,7 +34,7 @@
                                   label:'Liquid Level',
                                   data:{{ sensor.y_vals }},
                                   backgroundColor: {% if sensor.type == 'chem' %} 'green' {% else %} 'blue' {% endif %},
-                                  borderWidth:1,
+                                  borderWidth:1, //Effects plotted line on chart
                                   borderColor:'#777',
                                   hoverBorderWidth:3,
                                   hoverBorderColor:'#000'
@@ -57,6 +57,14 @@
                                                 steps: 10,
                                                 stepValue: 10,
                                                 max: 100
+                                            }
+                                        }],
+                                        xAxes: [{
+                                            display: true,
+                                            ticks: {
+                                                autoSkip: true,
+                                                padding: 4,
+                                                fontSize: 12
                                             }
                                         }]
                                     },
