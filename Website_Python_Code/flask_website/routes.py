@@ -95,11 +95,11 @@ class User(UserMixin):
                     curr_sensor["y_vals"].append(data_point[3])
                     counter = counter + 1
 
-                if len(curr_sensor['y_vals']) > 20:
+                if len(curr_sensor['y_vals']) > 19:
                     num_readings = len(curr_sensor['y_vals'])
                     #modifies display chart
-                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 20:] #expands x values
-                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 20:] #expand y values
+                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 19:] #expands x values
+                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 19:] #expand y values
 
                 data["sensor_data"][group][sensor] = curr_sensor
 
