@@ -1,7 +1,30 @@
 {% extends "layout_with_sidebar.html" %}
 {% block content %}
 
+
     {% if account_info.payment_tier == 1 %}
+            <script>
+            $(document).ready(function() {
+                socket.on('message', function(msg) {
+                    console.log("SocketIO clientside message: " + msg);
+                });
+
+                socket.on('POST', function(new_data) {
+                    Chart.helpers.each(Chart.instances, function(instance){
+                        if(instance.chart.canvas.id == new_data["Sensor ID"]) {
+                            instance.chart.data.labels.push(new_data["Sensor Data"][0]["Time Stamp"]);
+                            instance.chart.data.labels.splice(0, 1);
+                            instance.chart.data.datasets.forEach((dataset) => {
+                                dataset.data.push(new_data["Sensor Data"][0]["Liquid %"]);
+                                dataset.data.splice(0, 1);
+                            });
+                            instance.chart.update()
+                        }
+                    });
+                });
+            });
+
+            </script>
 
             {% for groupname, group in account_info.sensor_data.items() %}
 
@@ -26,7 +49,7 @@
                             Chart.defaults.global.defaultFontSize = 18; //Effects x and y's number font size
                             Chart.defaults.global.defaultFontColor = '#777';
 
-                            var linechart = new Chart(myChart{{sensorID}}, {
+                            var linechart{{sensorID}} = new Chart(myChart{{sensorID}}, {
                               type:'line',
                               data:{
                                 labels: {{ sensor.x_vals | tojson }},
@@ -84,6 +107,7 @@
                             });
                           </script>
 
+
                       <div class = "battery col-md-6" style="color :{% if sensor.bat_level > 70 %} green {% elif sensor.bat_level > 30 %} rgb(255, 170, 0) {% else %} red {% endif %}; font-size: 32px; background:
                       {% if sensor.bat_level > 70 %} rgba(0, 128, 0, 0.3) {% elif sensor.bat_level > 30 %} rgba(255, 170, 0, 0.3) {% else %} rgba(128, 0, 0, 0.3) {% endif %}; text-align: center">Battery Level: {{ sensor.bat_level }} %</div>
 
@@ -91,6 +115,8 @@
 
 
                     </article>
+
+
 
                 {% endfor %}
                 </div>
