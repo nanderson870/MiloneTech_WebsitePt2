@@ -1,7 +1,7 @@
-from flask_website import app
+from flask_website import app, socketio
 
 import os
 
 if __name__ == '__main__':
     print("getcwd():", os.getcwd())
-    app.run(debug=True)
+    socketio.run(app)

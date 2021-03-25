@@ -14,7 +14,18 @@ from flask_website import app, bcrypt, db, login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import login_user, current_user, logout_user, login_required, UserMixin
 import datetime
+
 from pprint import pprint
+
+# Nick's SocketIO Project
+#       imports
+from flask_website import socketio
+from flask_socketio import SocketIO, emit, send
+
+# define a dictionary to store active sessions,
+# key is SocketIO client ID, value is account ID
+sessions = {}
+
 
 class User(UserMixin):
 
@@ -22,6 +33,8 @@ class User(UserMixin):
 
         # Getting Sensors for Account
         data = {}
+
+        data["id"] = self.id
 
         data["email"] = self.email
         data["payment_tier"] = db.accounts.get_status_by_id(self.id)
@@ -128,10 +141,10 @@ class User(UserMixin):
         self.user_data = None
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User(user_id)
+
 
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/login", methods=['GET', 'POST'])
@@ -161,13 +174,13 @@ def login():
             
     return render_template('login.html', title='Login', form=form)
 
+
 @app.route("/home")
 @login_required
 def home():
-
     current_user.initialize_user_data()
+    return render_template('home.html', title='Dashboard', account_info=current_user.user_data)
 
-    return render_template('home.html', account_info=current_user.user_data)
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -192,19 +205,20 @@ def register():
     
     return render_template('register.html', title='Register', form=form)
 
+
 @app.route("/sensor", methods=['POST'])
 def sensor():
 
-    data_string = "Recieved post at: %s\n" % datetime.datetime.now()
+    data_string = "Received post at: %s\n" % datetime.datetime.now()
     print(data_string)
     data = request.json
     data_string = data_string + str(data)
-
 
     with open('./flask_website/records.txt', 'a') as f:
         f.write(data_string)
 
     sensorID = data["Sensor ID"]
+
 
     '''all assuming that the sensor already exists in the DB'''
     curr_sensor_info = db.sensors.get_sensor_info(sensorID)
@@ -224,6 +238,12 @@ def sensor():
         curr_sensor_alerts = db.alerts.check_alerts(sensorID)
         '''curr_sensor_alerts structure FOR NOW
         [(rec num,acc_id, 'sens_id', trig_lev , email? (0/1/2), text? (0/1/2))]'''
+
+        # Send an update to any of the account's active sessions
+        accountID = db.sensors.get_acc_id_by_sens_id(sensorID)
+        for session in sessions:
+            if sessions[session] == str(accountID):
+                socketio.emit('POST', request.json, to=session)
 
         for poss_alert in curr_sensor_alerts:
 
@@ -322,56 +342,60 @@ def account():
             flash('sensor ID: ' + sensorAccountForm.sensorID.data + ' has been added to your account', 'success')
             db.sensors.add_sensor_to_account(sensorAccountForm.sensorID.data, current_user.email)
             #db.accounts.set_account_payment_tier(0, current_user.email) Proof that it does Work. TODO: Make it work.
+
     return render_template('account.html', title='Account', form=form, sensorAccountForm=sensorAccountForm, account_info=current_user.user_data, currentUser = current_user)
 
 
 @app.route("/settings", methods=['GET', 'POST'])
 @login_required
 def settings():
-        form = SettingsForm()
-        alerts = []
-        for sensor in db.sensors.get_all_sensors(current_user.id):
-                if db.sensors.get_sensor_info(sensor)[0][4] == None:
-                    form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][2]))
-                else:
-                    form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][4]))
-                alerts += db.alerts.check_alerts(sensor)
-                if not (not db.sensors.get_sensor_info(sensor)[0][6] or db.sensors.get_sensor_info(sensor)[0][6] == 'None'):
-                    if db.sensors.get_sensor_info(sensor)[0][6] not in form.sensorGroup.choices:
-                        form.sensorGroup.choices.append((db.sensors.get_sensor_info(sensor)[0][6], db.sensors.get_sensor_info(sensor)[0][6]))
-        alerts.sort()
 
-        for alert in alerts:
-            form.alerts.choices.append((alert[0], alert[0]))
-        if form.is_submitted():
-            if int(form.textOrEmail.data) == 1:
-                if not form.level.data == '':
-                    db.alerts.add_sensor_alert(current_user.id, form.sensorID.data, form.level.data, 1, 0)
-                    flash('Successfully Added Email Alert at Level: ' + form.level.data, 'success')
+    form = SettingsForm()
+    alerts = []
+    for sensor in db.sensors.get_all_sensors(current_user.id):
+            if db.sensors.get_sensor_info(sensor)[0][4] == None:
+                form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][2]))
             else:
-                if not form.level.data == '':
-                    db.alerts.add_sensor_alert(current_user.id, form.sensorID.data, form.level.data, 0, 1)
-                    flash('Successfully Added Text Alert at Level: ' + form.level.data, 'success')
-            if not form.alerts.data == '':
-                db.alerts.remove_alert(form.alerts.data)
-                flash('Successfully removed Alert #: ' + form.alerts.data, 'success')
-            if not form.newSensorName.data == '':
-                db.sensors.set_sensor_name(form.sensorID.data, form.newSensorName.data)
-                flash('Changed Current Sensor Name to: ' + form.sensorID.data, 'success')
-            if not form.sensorGroup.data == '':
-                db.sensors.set_sensor_group(form.sensorID.data, form.sensorGroup.data)
-                flash("Changed Current Sensor's Group to: " + form.sensorGroup.data, 'success')
-            else:
-                if not form.newSensorGroup.data == '':
-                    db.sensors.set_sensor_group(form.sensorID.data, form.newSensorGroup.data)
-                    flash("Changed Current Sensor's Group to: " + form.newSensorGroup.data, 'success')
-        return render_template('settings.html', title='Settings', form=form, account_info=current_user.user_data, alerts=alerts)
+                form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][4]))
+            alerts += db.alerts.check_alerts(sensor)
+            if not (not db.sensors.get_sensor_info(sensor)[0][6] or db.sensors.get_sensor_info(sensor)[0][6] == 'None'):
+                if db.sensors.get_sensor_info(sensor)[0][6] not in form.sensorGroup.choices:
+                    form.sensorGroup.choices.append((db.sensors.get_sensor_info(sensor)[0][6], db.sensors.get_sensor_info(sensor)[0][6]))
+    alerts.sort()
+
+    for alert in alerts:
+        form.alerts.choices.append((alert[0], alert[0]))
+    if form.is_submitted():
+        if int(form.textOrEmail.data) == 1:
+            if not form.level.data == '':
+                db.alerts.add_sensor_alert(current_user.id, form.sensorID.data, form.level.data, 1, 0)
+                flash('Successfully Added Email Alert at Level: ' + form.level.data, 'success')
+        else:
+            if not form.level.data == '':
+                db.alerts.add_sensor_alert(current_user.id, form.sensorID.data, form.level.data, 0, 1)
+                flash('Successfully Added Text Alert at Level: ' + form.level.data, 'success')
+        if not form.alerts.data == '':
+            db.alerts.remove_alert(form.alerts.data)
+            flash('Successfully removed Alert #: ' + form.alerts.data, 'success')
+        if not form.newSensorName.data == '':
+            db.sensors.set_sensor_name(form.sensorID.data, form.newSensorName.data)
+            flash('Changed Current Sensor Name to: ' + form.sensorID.data, 'success')
+        if not form.sensorGroup.data == '':
+            db.sensors.set_sensor_group(form.sensorID.data, form.sensorGroup.data)
+            flash("Changed Current Sensor's Group to: " + form.sensorGroup.data, 'success')
+        else:
+            if not form.newSensorGroup.data == '':
+                db.sensors.set_sensor_group(form.sensorID.data, form.newSensorGroup.data)
+                flash("Changed Current Sensor's Group to: " + form.newSensorGroup.data, 'success')
+    return render_template('settings.html', title='Settings', form=form, account_info=current_user.user_data, alerts=alerts)
+
 
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 
 @app.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
@@ -387,8 +411,8 @@ def reset_request():
 
         return redirect(url_for('login'))
 
-
     return render_template('reset_request.html', title = "Reset Password", form=form)
+
 
 @app.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
@@ -406,8 +430,25 @@ def reset_token(token):
         hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         db.accounts.set_account_password(hashed_pass, user.email )
 
-        flash(f'Your password has been updated! You may now Login', 'success')
+        flash('Your password has been updated! You may now Login', 'success')
         return redirect(url_for('login'))
 
     return render_template('reset_token.html', title = "Reset Password", form=form)
 
+
+# Catch users connecting, store the (session id):(user id) pair in the sessions dictionary
+@socketio.on("connect")
+def connect():
+    sessions[request.sid] = current_user.id
+    print("connected user ID " + current_user.id + " to session " + request.sid)
+    print("Active Sessions:")
+    pprint(sessions)
+
+
+# Catch users disconnecting, remove that session id's entry from the sessions dictionary
+@socketio.on("disconnect")
+def disconnected():
+    del sessions[request.sid]
+    print("disconnected user ID " + current_user.id + " from session " + request.sid)
+    print("Active Sessions:")
+    pprint(sessions)
