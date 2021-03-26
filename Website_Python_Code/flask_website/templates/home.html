@@ -147,16 +147,14 @@
     function add_datapoint(new_data) {
     //Takes a POST and updates the chart it belongs to
         var chart = get_chart_by_sid(new_data["Sensor ID"]);
-            chart.data.labels.push(new_data["Sensor Data"][0]["Time Stamp"]);
-            chart.data.labels.splice(0, 1);
+        chart.data.labels.push(new_data["Sensor Data"][0]["Time Stamp"]);
+        chart.data.labels.splice(0, 1);
 
-            chart.data.datasets.forEach((dataset) => {
-                dataset.data.push(new_data["Sensor Data"][0]["Liquid %"]);
-                dataset.data.splice(0, 1);
-            });
-                instance.chart.update();
-            }
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.push(new_data["Sensor Data"][0]["Liquid %"]);
+            dataset.data.splice(0, 1);
         });
+        instance.chart.update();
     }
 
     function get_chart_by_sid(sid) {
