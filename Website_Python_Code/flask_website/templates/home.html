@@ -10,17 +10,7 @@
                 });
 
                 socket.on('POST', function(new_data) {
-                    Chart.helpers.each(Chart.instances, function(instance){
-                        if(instance.chart.canvas.id == new_data["Sensor ID"]) {
-                            instance.chart.data.labels.push(new_data["Sensor Data"][0]["Time Stamp"]);
-                            instance.chart.data.labels.splice(0, 1);
-                            instance.chart.data.datasets.forEach((dataset) => {
-                                dataset.data.push(new_data["Sensor Data"][0]["Liquid %"]);
-                                dataset.data.splice(0, 1);
-                            });
-                            instance.chart.update()
-                        }
-                    });
+                    add_datapoint(new_data)
                 });
             });
 
@@ -152,5 +142,34 @@
             {% endfor %}
 
     {% endif %}
+
+    <script>
+    function add_datapoint(new_data) {
+    //Takes a POST and updates the chart it belongs to
+        var chart = get_chart_by_sid(new_data["Sensor ID"]);
+            chart.data.labels.push(new_data["Sensor Data"][0]["Time Stamp"]);
+            chart.data.labels.splice(0, 1);
+
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.push(new_data["Sensor Data"][0]["Liquid %"]);
+                dataset.data.splice(0, 1);
+            });
+                instance.chart.update();
+            }
+        });
+    }
+
+    function get_chart_by_sid(sid) {
+    //Returns the Chart.js object associated with a sensor by ID
+        Chart.helpers.each(Chart.instances, function(instance){
+            if(instance.chart.canvas.id == new_data["Sensor ID"]) {
+                return instance.chart;
+            }
+        });
+    }
+
+
+    </script>
+
 
 {% endblock content %}
