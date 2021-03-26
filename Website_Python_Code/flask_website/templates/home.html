@@ -14,32 +14,32 @@
                 });
             });
 
-                function add_datapoint(new_data) {
-    //Takes a POST and updates the chart it belongs to
-        var chart = get_chart_by_sid(new_data["Sensor ID"]);
-        chart.data.labels.push(new_data["Sensor Data"][0]["Time Stamp"]);
-        chart.data.labels.splice(0, 1);
+            function add_datapoint(new_data) {
+            //Takes a POST and updates the chart it belongs to
+                var chart = get_chart_by_sid(new_data["Sensor ID"]);
+                chart.data.labels.push(new_data["Sensor Data"][0]["Time Stamp"]);
+                chart.data.labels.splice(0, 1);
 
-        chart.data.datasets.forEach((dataset) => {
-            dataset.data.push(new_data["Sensor Data"][0]["Liquid %"]);
-            dataset.data.splice(0, 1);
-        });
+                chart.data.datasets.forEach((dataset) => {
+                    dataset.data.push(new_data["Sensor Data"][0]["Liquid %"]);
+                    dataset.data.splice(0, 1);
+             });
 
-        //document.getElementById("battery col " + 'new_data["Sensor ID"]').innerHTML= "Battery Level: " + new_data["Sensor Data"][0]["Battery %"];
+                document.getElementById("battery col " + new_data["Sensor ID"]).innerHTML= "Battery Level: " + new_data["Sensor Data"][0]["Battery %"];
 
-        chart.update();
-    }
-
-    function get_chart_by_sid(sid) {
-    //Returns the Chart.js object associated with a sensor by ID
-        var returnChart;
-        Chart.helpers.each(Chart.instances, function(instance){
-            if(instance.chart.canvas.id == sid) {
-                returnChart = instance.chart;
+                chart.update();
             }
-        });
-        return returnChart;
-    }
+
+            function get_chart_by_sid(sid) {
+            //Returns the Chart.js object associated with a sensor by ID
+                var returnChart;
+                Chart.helpers.each(Chart.instances, function(instance){
+                    if(instance.chart.canvas.id == sid) {
+                        returnChart = instance.chart;
+                    }
+                });
+                return returnChart;
+            }
 
             </script>
 
