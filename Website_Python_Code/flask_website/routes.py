@@ -26,8 +26,6 @@ from flask_socketio import SocketIO, emit, send
 # key is SocketIO client ID, value is account ID
 sessions = {}
 
-from flask_website.dbAPI import date_utility
-
 
 class User(UserMixin):
 
