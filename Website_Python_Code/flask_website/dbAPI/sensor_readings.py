@@ -34,7 +34,7 @@ def add_reading_no_time(sens_id, liquid, battery, rssi):
         with db.engine.connect() as connection:
             connection.execute("insert into sensor_readings "
                                "values (default, {}, '{}', {}, {}, default, {})"
-                               .format( acc_id , sens_id, liquid, battery, rssi))
+                               .format(acc_id, sens_id, liquid, battery, rssi))
             return True
     except exc.SQLAlchemyError:
         return False
@@ -48,8 +48,8 @@ def add_reading_yes_time(sens_id, liquid, battery, time_stamp, rssi):
 
         with db.engine.connect() as connection:
             connection.execute("insert into sensor_readings "
-                               "values (default, {}, '{}', {}, {}, {}, {})"
-                               .format( acc_id , sens_id, liquid, battery, time_stamp, rssi))
+                               "values (default, {}, '{}', {}, {}, '{}', {})"
+                               .format(acc_id, sens_id, liquid, battery, time_stamp, rssi))
             return True
     except exc.SQLAlchemyError:
         return False

@@ -26,6 +26,8 @@ from flask_socketio import SocketIO, emit, send
 # key is SocketIO client ID, value is account ID
 sessions = {}
 
+from flask_website.dbAPI import date_utility
+
 
 class User(UserMixin):
 
@@ -101,18 +103,18 @@ class User(UserMixin):
                     curr_sensor["x_vals"] = data_point[5]
                     '''
                     dateSQL = data_point[5]
-                    dateSQL = dateSQL - datetime.timedelta(hours=5)
+                    dateSQL = dateSQL - datetime.timedelta(hours=5)   # The sensors report 5 hours ahead of EST
                     date = str(dateSQL)
 
                     curr_sensor["x_vals"].append(date)
                     curr_sensor["y_vals"].append(data_point[3])
                     counter = counter + 1
 
-                if len(curr_sensor['y_vals']) > 19:
+                if len(curr_sensor['y_vals']) > 20:
                     num_readings = len(curr_sensor['y_vals'])
-                    #modifies display chart
-                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 19:] #expands x values
-                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 19:] #expand y values
+                    # modifies display chart
+                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 20:]   # expands x values
+                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 20:]   # expand y values
 
                 data["sensor_data"][group][sensor] = curr_sensor
 
@@ -160,9 +162,7 @@ def login():
         userID = db.accounts.get_id_by_email(form.email.data)
         user = User(userID)
 
-
         if user and bcrypt.check_password_hash( db.accounts.get_pass_by_id(userID), form.password.data):
-
             print("almost there")
             login_user(user, remember=form.remember.data)
             flash('You have been logged in!', 'success')
@@ -239,11 +239,7 @@ def sensor():
         '''curr_sensor_alerts structure FOR NOW
         [(rec num,acc_id, 'sens_id', trig_lev , email? (0/1/2), text? (0/1/2))]'''
 
-        # Send an update to any of the account's active sessions
-        accountID = db.sensors.get_acc_id_by_sens_id(sensorID)
-        for session in sessions:
-            if sessions[session] == str(accountID):
-                socketio.emit('POST', request.json, to=session)
+
 
         for poss_alert in curr_sensor_alerts:
 
@@ -302,16 +298,29 @@ def sensor():
                         break
 
     else:
-        #the sensor doesn't exist in the db... create it
+        # the sensor doesn't exist in the db... create it
         # (TODO) FOR NOW with default values
         db.sensors.add_sensor(sensorID,data["Sensor Leng"], data["Sensor Type"])
 
+    # Capture a list of the user's current sessions
+    user_sessions = []
+    accountID = db.sensors.get_acc_id_by_sens_id(sensorID)
+    for session in sessions:
+        if sessions[session] == str(accountID):
+            user_sessions.append(session)
 
-
+    # For each datapoint in this POST
     for entry in data["Sensor Data"]:
-        print()
-        db.sensor_readings.add_reading_no_time(sensorID, entry["Liquid %"], entry["Battery %"],
-                                               entry["RSSI"])
+        # Apply Nick's timestamp conversion, then push to database
+        entry["Time Stamp"] = date_utility.sensor_timestamp_to_datetime(entry["Time Stamp"])
+        print (entry["Time Stamp"])
+        db.sensor_readings.add_reading_yes_time(sensorID, entry["Liquid %"], entry["Battery %"],
+                                                entry["Time Stamp"], entry["RSSI"])
+
+        # Then send the entry to the charts in all of the user's active sessions
+        for session in user_sessions:
+            print("SID = " + sensorID)
+            socketio.emit('POST', [sensorID, entry], to=session)
 
     time_response = str(db.sensors.get_sensor_time_between(sensorID)[0])
     print(time_response)
