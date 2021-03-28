@@ -274,7 +274,7 @@ def sensor():
                 text_alert_enc = poss_alert[5]
                 hit = False
 
-                if entry["Liquid %"] < poss_alert[3]:
+                if int(entry["Liquid %"]) < poss_alert[3]:
 
                     '''(to_email, sensor, curr_user_name, alert_level, curr_level):'''
                     if email_alert_enc == 1:
