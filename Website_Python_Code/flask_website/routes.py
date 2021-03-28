@@ -311,23 +311,22 @@ def sensor():
     for entry in data["Sensor Data"]:
 
         # Convert timestamp to datetime
-        entry["Time Stamp"] = datetime.datetime.strptime(entry["Time Stamp"], "%a %b %d %H:%M:%S %Y\n")
+        timestamp_datetime = datetime.datetime.strptime(entry["Time Stamp"], "%a %b %d %H:%M:%S %Y\n")
+        entry["Time Stamp"] = str(timestamp_datetime)
 
         # Add to database
         db.sensor_readings.add_reading_yes_time(sensorID, entry["Liquid %"], entry["Battery %"],
                                                 entry["Time Stamp"], entry["RSSI"])
 
-        # Make a copy of the entry to send to the charts, and change it's datetime to a string so
-        # Python doesn't yell at Nick anymore
-        datapoint = entry
-        datapoint["Time Stamp"] = str(datapoint["Time Stamp"] - datetime.timedelta(hours=5))
+        timestamp_datetime = timestamp_datetime - datetime.timedelta(hours=5)
+
+        entry["Time Stamp"] = str(timestamp_datetime)
         # Then send the entry to the charts in all of the user's active sessions
         for session in user_sessions:
             socketio.emit('POST', [sensorID, entry], to=session)
 
     time_response = str(db.sensors.get_sensor_time_between(sensorID)[0])
     print(time_response)
-    print(type(time_response))
 
     return time_response
 

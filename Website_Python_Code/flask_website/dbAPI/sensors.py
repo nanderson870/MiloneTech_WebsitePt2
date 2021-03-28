@@ -12,7 +12,6 @@ def get_acc_id_by_sens_id(sens_id):
             for row in result:
                 acc.append(row['accountID'])
 
-            print(acc)
             return acc[0]
     except exc.SQLAlchemyError:
         return False
@@ -32,7 +31,6 @@ def get_acc_id_by_sens_id(sens_id):
             for row in result:
                 acc.append(row['accountID'])
 
-            print(acc)
             return acc[0]
     except exc.SQLAlchemyError as e:
         print(e)
