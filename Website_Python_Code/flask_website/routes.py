@@ -298,7 +298,7 @@ def sensor():
     else:
         # the sensor doesn't exist in the db... create it
         # (TODO) FOR NOW with default values
-        db.sensors.add_sensor(sensorID,data["Sensor Leng"], data["Sensor Type"])
+        db.sensors.add_sensor(sensorID, data["Sensor Leng"], data["Sensor Type"])
 
     # Capture a list of the user's current sessions
     user_sessions = []
@@ -311,7 +311,7 @@ def sensor():
     for entry in data["Sensor Data"]:
 
         # Convert timestamp to datetime
-        entry["Time Stamp"] = datetime.datetime.strptime(entry["Time Stamp"], "%a %b %d %H:%M:%S %Y")
+        entry["Time Stamp"] = datetime.datetime.strptime(entry["Time Stamp"], "%a %b %d %H:%M:%S %Y\n")
 
         # Add to database
         db.sensor_readings.add_reading_yes_time(sensorID, entry["Liquid %"], entry["Battery %"],
