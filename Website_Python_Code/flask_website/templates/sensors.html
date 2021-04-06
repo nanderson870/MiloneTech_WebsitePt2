@@ -1,0 +1,19 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Sensors{% endblock %} 
+
+{% block content %}
+<h1>Sensors</h1>
+
+<div class="dropdown dropdown nav-item">
+    <button onclick="myFunction()" class="dropbtn">Choose a sensor here</button>
+    <div id="myDropdown" class="dropdown-content">
+      <a href="/live-sensors">Sensor 1</a>
+      <a href="#">Sensor 2</a>
+      <a href="#">Sensor 3</a>
+    </div>
+  </div>
+
+
+
+{% endblock content %}

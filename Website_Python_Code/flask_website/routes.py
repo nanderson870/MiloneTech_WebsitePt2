@@ -176,9 +176,34 @@ def login():
 @app.route("/home")
 @login_required
 def home():
-    current_user.initialize_user_data()
-    return render_template('home.html', title='Dashboard', account_info=current_user.user_data)
+    # current_user.initialize_user_data()
+    return render_template('home.html', account_info=current_user.user_data)
 
+@app.route("/sensors")
+def sensors():
+    current_user.initialize_user_data()
+    return render_template('sensors.html', account_info=current_user.user_data)
+
+@app.route("/live-sensors")
+def liveSensors():
+    current_user.initialize_user_data()
+    return render_template('live-sensors.html', account_info=current_user.user_data)
+
+@app.route("/profile")
+def profile():
+    return render_template('page-user.html')
+
+@app.route("/notifications")
+def notifications():
+    return render_template('notifications.html')
+
+@app.route("/maps")
+def maps():
+    return render_template('maps.html')  
+
+@app.route("/support")
+def support():
+    return render_template('support.html')       
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -329,6 +354,7 @@ def sensor():
     print(time_response)
 
     return time_response
+
 
 
 @app.route("/account", methods=['GET', 'POST'])
