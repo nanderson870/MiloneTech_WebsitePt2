@@ -23,7 +23,7 @@
 
     {% if account_info.payment_tier == 1 %}
             <script>
-            $(document).ready(function() {
+            //$(document).ready(function() {
                 socket.on('message', function(msg) {
                     console.log("SocketIO clientside message: " + msg);
                 });
@@ -31,7 +31,7 @@
                 socket.on('POST', function(new_data) {
                     add_datapoint(new_data)
                 });
-            });
+            //});
 
             function add_datapoint(new_data) {
             //Takes an array containing [SID, datapoint]
