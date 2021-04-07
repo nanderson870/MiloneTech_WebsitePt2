@@ -23,31 +23,42 @@
 
     {% if account_info.payment_tier == 1 %}
             <script>
-            //$(document).ready(function() {
-                socket.on('message', function(msg) {
-                    console.log("SocketIO clientside message: " + msg);
-                });
 
-                socket.on('POST', function(new_data) {
-                    add_datapoint(new_data)
-                });
-            //});
+            //an object of key/value pairs of form sensor ID/canvas ID
+            var linecharts = {};
+
+            //Catches and responds to SocketIO messages (mostly for debug)
+            socket.on('message', function(msg) {
+                console.log("SocketIO clientside message: " + msg);
+            });
+
+            //Received from routes.py when a POST request comes in, brings in a datapoint
+            socket.on('POST', function(new_data) {
+                    add_datapoint(new_data);
+                    for (linechart in linecharts) {
+                    console.log(linechart);
+                }
+            });
 
             function add_datapoint(new_data) {
-            //Takes an array containing [SID, datapoint]
+            //Adds a new data_point to its respective
+            //Argument new_data is an array containing [SID, datapoint]
                 var sid = new_data[0]
                 var datapoint = new_data[1]
-                var chart = get_chart_by_sid(sid);
+
+                //grab the chart we're updating
+                var chart = linecharts[sid];
+
+                //This is Chart.js standard, push the datapoint label, then the datapoint in
                 chart.data.labels.push(datapoint["Time Stamp"]);
                 chart.data.labels.splice(0, 1);
-
                 chart.data.datasets.forEach((dataset) => {
                     dataset.data.push(datapoint["Liquid %"]);
                     dataset.data.splice(0, 1);
                 });
 
+                //Update the battery bar percentage and color
                 document.getElementById("battery col " + sid).innerHTML= "Battery Level: " + datapoint["Battery %"] + "%";
-
                 var color
                 var background
                 if (datapoint["Battery %"] > 70) {
@@ -69,16 +80,11 @@
 
             function get_chart_by_sid(sid) {
             //Returns the Chart.js object associated with a sensor by ID
-                var returnChart;
-                Chart.helpers.each(Chart.instances, function(instance){
-                    if(instance.chart.canvas.id == sid) {
-                        returnChart = instance.chart;
-                    }
-                });
-                return returnChart;
+                return linecharts[sid];
             }
 
             </script>
+
 
             <!-- Displays chart for sensors -->
 
@@ -164,6 +170,10 @@
 
                                   }
                             });
+
+                            //add to manual tracking
+                            linecharts[{{sensorID}}] = linechart{{sensorID}};
+
                           </script>
 
 
