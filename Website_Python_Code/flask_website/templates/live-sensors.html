@@ -35,9 +35,6 @@
             //Received from routes.py when a POST request comes in, brings in a datapoint
             socket.on('POST', function(new_data) {
                     add_datapoint(new_data);
-                    for (linechart in linecharts) {
-                    console.log(linechart);
-                }
             });
 
             function add_datapoint(new_data) {
