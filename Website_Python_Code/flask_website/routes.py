@@ -489,3 +489,6 @@ def disconnected():
     print("disconnected user ID " + current_user.id + " from session " + request.sid)
     print("Active Sessions:")
     pprint(sessions)
+
+
+
