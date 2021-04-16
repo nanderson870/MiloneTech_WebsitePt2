@@ -9,52 +9,41 @@
 <div class="dropdown dropdown nav-item">
     <button onclick="myFunction()" class="dropbtn">Choose a sensor here</button>
     <div id="myDropdown" class="dropdown-content">
-      <a href="/live-sensors">Sensor 1</a>
-      <a href="#">Sensor 2</a>
-      <a href="#">Sensor 3</a>
+      <a href="/live-sensors">Real</a>
+      <a href="#">No Group</a>
     </div>
   </div>
 
 <br/>
 <br/>
 
-
-
     {% if account_info.payment_tier == 1 %}
             <script>
+            $(document).ready(function() {
+                socket.on('message', function(msg) {
+                    console.log("SocketIO clientside message: " + msg);
+                });
 
-            //an object of key/value pairs of form sensor ID/canvas ID
-            var linecharts = {};
-
-            //Catches and responds to SocketIO messages (mostly for debug)
-            socket.on('message', function(msg) {
-                console.log("SocketIO clientside message: " + msg);
-            });
-
-            //Received from routes.py when a POST request comes in, brings in a datapoint
-            socket.on('POST', function(new_data) {
-                    add_datapoint(new_data);
+                socket.on('POST', function(new_data) {
+                    add_datapoint(new_data)
+                });
             });
 
             function add_datapoint(new_data) {
-            //Adds a new data_point to its respective
-            //Argument new_data is an array containing [SID, datapoint]
+            //Takes an array containing [SID, datapoint]
                 var sid = new_data[0]
                 var datapoint = new_data[1]
-
-                //grab the chart we're updating
-                var chart = linecharts[sid];
-
-                //This is Chart.js standard, push the datapoint label, then the datapoint in
+                var chart = get_chart_by_sid(sid);
                 chart.data.labels.push(datapoint["Time Stamp"]);
                 chart.data.labels.splice(0, 1);
+
                 chart.data.datasets.forEach((dataset) => {
                     dataset.data.push(datapoint["Liquid %"]);
                     dataset.data.splice(0, 1);
                 });
 
-                //Update the battery bar percentage and color
                 document.getElementById("battery col " + sid).innerHTML= "Battery Level: " + datapoint["Battery %"] + "%";
+
                 var color
                 var background
                 if (datapoint["Battery %"] > 70) {
@@ -76,15 +65,22 @@
 
             function get_chart_by_sid(sid) {
             //Returns the Chart.js object associated with a sensor by ID
-                return linecharts[sid];
+                var returnChart;
+                Chart.helpers.each(Chart.instances, function(instance){
+                    if(instance.chart.canvas.id == sid) {
+                        returnChart = instance.chart;
+                    }
+                });
+                return returnChart;
             }
 
             </script>
 
-
             <!-- Displays chart for sensors -->
 
             {% for groupname, group in account_info.sensor_data.items() %}
+
+            <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
 
                 {% for sensorID, sensor in group.items() %}
 
@@ -94,17 +90,14 @@
 
                       <h3 style="text-align: left">{% if sensor.name != None %}Sensor: {{ sensor.name }}{% else %}SensorID: {{sensorID}}{% endif %}</h3>
 
-                      <canvas id='{{sensorID}}'></canvas> 
-                      
+                      <canvas id='{{sensorID}}'></canvas>
 
                         <script>
 
                             var myChart{{sensorID}} = document.getElementById('{{sensorID}}').getContext('2d');
-                            
-                            
-                            
+
                             // Global Options
-                            // Chart.defaults.global.defaultFontFamily = 'Lato';
+                            Chart.defaults.global.defaultFontFamily = 'inherit';
                             Chart.defaults.global.defaultFontSize = 18; //Effects x and y's number font size
                             Chart.defaults.global.defaultFontColor = '#777';
 
@@ -115,7 +108,7 @@
                                 datasets:[{
                                   label:'Liquid Level',
                                   data:{{ sensor.y_vals }},
-                                  backgroundColor: {% if sensor.type == 'chem' %} '#00CD00' {% else %} '#1d8cf8' {% endif %},
+                                  backgroundColor: {% if sensor.type == 'chem' %} 'green' {% else %} '#1d8cf8' {% endif %},
                                   borderWidth:1, //Effects plotted line on chart
                                   borderColor:'#777',
                                   hoverBorderWidth:3,
@@ -161,14 +154,9 @@
                                     tooltips:{
                                       enabled:true
                                     }
-                                  
 
                                   }
                             });
-
-                            //add to manual tracking
-                            linecharts[{{sensorID}}] = linechart{{sensorID}};
-
                           </script>
 
 
@@ -187,8 +175,6 @@
             {% endfor %}
 
             Times are represented in EST
-
-           
 {% else %}
 
         {% for groupname, group in account_info.sensor_data.items() %}
@@ -205,7 +191,7 @@
 
 
 
-                      <div class = "battery col-md-6" style="color: {% if sensor.bat_level > 70 %} red {% elif sensor.bat_level > 30 %} yellow {% else %} red {% endif %};
+                      <div class = "battery col-md-6" style="color : {% if sensor.bat_level > 70 %} red {% elif sensor.bat_level > 30 %} yellow {% else %} red {% endif %};
                       font-size: 32px; background: rgba(0, 128, 0, 0.3); text-align: center">Battery Level: {{ sensor.bat_level }} %</div>
 
                       </div>

@@ -5866,7 +5866,6 @@
   
   .alert-info {
     color: #1d8cf8;
-    background-color: #419ef9;
     border-color: #419ef9;
   }
   
@@ -15819,7 +15818,7 @@
   }
   
   .navbar.navbar-transparent {
-    background: transparent !important;
+    background: #f5f6fa !important;
     position: fixed;
   }
   
@@ -20521,13 +20520,6 @@
   left: 35px;
 }
 
-.navbar2 {
-  left: 255px;
-  position: absolute;
-  padding: 30px 1975px 40px 50px;
-  margin-top: 0.1px;
-  background: #f5f6fa;
-}
 
 .form-for-login {
   width: 41%;
@@ -20684,4 +20676,18 @@ rgba(0, 128, 0, 0.3);
 
 #pwd_create {
   width: 420%;
+}
+
+#item-options {
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.2857rem;
+  width: 100mm;
+  padding-left: 0px;
+}
+
+#register {
+  padding-left: 184px;
 }
