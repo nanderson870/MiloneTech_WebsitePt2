@@ -61,7 +61,8 @@
 
 {% extends "layouts/base-for-login.html" %}
 {% block content %}
-    <div>
+    <div class="login-border">
+      
         <form method="POST" action="" class="form-for-login">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
@@ -105,6 +106,7 @@
                 <a href="{{ url_for('reset_request')}}" class="forgot-password">Forgot Password?</a>
             </small>
         </form>
+      
     </div>
     <div class="need-account">
         <small class="text-muted">

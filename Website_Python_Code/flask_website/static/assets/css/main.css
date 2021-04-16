@@ -89,6 +89,7 @@
     color: #525f7f;
     text-align: left;
     background-color: #1e1e2f;
+
     
   }
   
@@ -12431,7 +12432,7 @@
   }
   
   .text-primary {
-    color: #e14eca !important;
+    color: #1d8cf8 !important;
   }
   
   a.text-primary:hover,
@@ -18823,6 +18824,7 @@
   .input-group.no-border.form-control-lg .form-control+.input-group-prepend .input-group-text,
   .input-group.no-border.form-control-lg .form-control+.input-group-append .input-group-text {
     padding: 15px 19px 15px 0;
+
   }
   
   .form-group.form-control-lg .form-control,
@@ -20528,16 +20530,17 @@
 }
 
 .form-for-login {
-  padding-right: 750px;
-  padding-left: 400px;
+  width: 41%;
 }
 
 .forgot-password {
-  padding-left: 160px;
+  width: 100%;
+  margin-left: 38%;
 }
 
 .need-account {
-  padding-left: 520px;
+  width: 100%;
+  margin-left: 34%;
 }
 
 
@@ -20623,7 +20626,9 @@ rgba(0, 128, 0, 0.3);
 
 .form-for-register {
   /* padding-right: 750px; */
-  padding-left: 400px;
+  /* width: 210%; */
+  margin-right: 19%;
+  margin-left: 31%;
 }
 
 .label-for-register {
@@ -20665,3 +20670,18 @@ rgba(0, 128, 0, 0.3);
   padding-left: 150px;
 }
 
+.login-border {
+  margin-left: 25%;
+}
+
+#username_create {
+  width: 420%;
+}
+
+#email_create {
+  width: 420%;
+}
+
+#pwd_create {
+  width: 420%;
+}

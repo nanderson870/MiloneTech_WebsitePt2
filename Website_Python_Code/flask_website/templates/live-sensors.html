@@ -3,7 +3,6 @@
 {% block title %}Sensors{% endblock %} 
 
 
-
 {% block content %}
 <h1>Sensors</h1>
 
@@ -83,9 +82,6 @@
             <!-- Displays chart for sensors -->
 
             {% for groupname, group in account_info.sensor_data.items() %}
-         
-
-            <!-- <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3> -->
 
                 {% for sensorID, sensor in group.items() %}
 
@@ -95,12 +91,14 @@
 
                       <h3 style="text-align: left">{% if sensor.name != None %}Sensor: {{ sensor.name }}{% else %}SensorID: {{sensorID}}{% endif %}</h3>
 
-                      <canvas id='{{sensorID}}'></canvas>
+                      <canvas id='{{sensorID}}'></canvas> 
+                      
 
                         <script>
 
                             var myChart{{sensorID}} = document.getElementById('{{sensorID}}').getContext('2d');
-                           
+                            
+                            
                             
                             // Global Options
                             // Chart.defaults.global.defaultFontFamily = 'Lato';
@@ -214,6 +212,8 @@
 
     {% endif %}
 
+
+   
 
 
 {% endblock content %}
