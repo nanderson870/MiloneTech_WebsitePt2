@@ -189,6 +189,11 @@ def liveSensors():
     current_user.initialize_user_data()
     return render_template('live-sensors.html', account_info=current_user.user_data)
 
+@app.route("/live-sensors-2")
+def liveSensors2():
+    current_user.initialize_user_data()
+    return render_template('live-sensors-2.html', account_info=current_user.user_data)
+
 @app.route("/profile")
 def profile():
     return render_template('page-user.html')
