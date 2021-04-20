@@ -19,43 +19,33 @@
 
     {% if account_info.payment_tier == 1 %}
             <script>
+            $(document).ready(function() {
+                socket.on('message', function(msg) {
+                    console.log("SocketIO clientside message: " + msg);
+                });
 
-            //an object of key/value pairs of form sensor ID/canvas ID
-            var linecharts = {};
-
-            //Catches and responds to SocketIO messages (mostly for debug)
-            socket.on('message', function(msg) {
-                console.log("SocketIO clientside message: " + msg);
-            });
-
-            //Received from routes.py when a POST request comes in, brings in a datapoint
-            socket.on('POST', function(new_data) {
-                    add_datapoint(new_data);
+                socket.on('POST', function(new_data) {
+                    add_datapoint(new_data)
+                });
             });
 
             function add_datapoint(new_data) {
-            //Adds a new data_point to its respective
-            //Argument new_data is an array containing [SID, datapoint]
-                var sid = new_data[0];
-                var datapoint = new_data[1];
-
-                //grab the chart we're updating
-                var chart = linecharts[sid];
-
-
-
-                //This is Chart.js standard, push the datapoint label, then the datapoint in
+            //Takes an array containing [SID, datapoint]
+                var sid = new_data[0]
+                var datapoint = new_data[1]
+                var chart = get_chart_by_sid(sid);
                 chart.data.labels.push(datapoint["Time Stamp"]);
                 chart.data.labels.splice(0, 1);
+
                 chart.data.datasets.forEach((dataset) => {
                     dataset.data.push(datapoint["Liquid %"]);
                     dataset.data.splice(0, 1);
                 });
 
-                //Update the battery bar percentage and color
                 document.getElementById("battery col " + sid).innerHTML= "Battery Level: " + datapoint["Battery %"] + "%";
-                var color;
-                var background;
+
+                var color
+                var background
                 if (datapoint["Battery %"] > 70) {
                     color = 'green';
                     background = 'rgba(0, 128, 0, 0.3)';
@@ -63,19 +53,25 @@
                     color = 'rgb(255, 170, 0)';
                     background = 'rgba(255, 170, 0, 0.3)';
                 } else {
-                    color = "red";
+                    color = "red"
                     background = 'rgba(128, 0, 0, 0.3)';
                 }
-                document.getElementById("battery col " + sid).style.color = color;
-                document.getElementById("battery col " + sid).style.background = background;
-                document.getElementById("battery col " + sid).style.textalign = "center";
+                document.getElementById("battery col " + sid).style.color = color
+                document.getElementById("battery col " + sid).style.background = background
+                document.getElementById("battery col " + sid).style.textalign = "center"
 
                 chart.update();
             }
 
             function get_chart_by_sid(sid) {
             //Returns the Chart.js object associated with a sensor by ID
-                return linecharts[sid];
+                var returnChart;
+                Chart.helpers.each(Chart.instances, function(instance){
+                    if(instance.chart.canvas.id == sid) {
+                        returnChart = instance.chart;
+                    }
+                });
+                return returnChart;
             }
 
             </script>
@@ -84,7 +80,7 @@
 
             {% for groupname, group in account_info.sensor_data.items() %}
 
-            {% if groupname == "nicktest" %}
+            {% if groupname == "No Group" %}
             <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
 
                 {% for sensorID, sensor in group.items() %}
@@ -99,18 +95,16 @@
 
                         <script>
 
-
                             var myChart{{sensorID}} = document.getElementById('{{sensorID}}').getContext('2d');
-                            
                             gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 650);
                             gradient.addColorStop(0, 'rgba(29, 140, 248, 0.75)');
                             gradient.addColorStop(0.5, 'rgba(29, 140, 248, 0.5)');
                             gradient.addColorStop(1, 'rgba(29, 140, 248, 0)');
 
-                            gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 650);
-                            gradient.addColorStop(0, 'rgba(29, 140, 248, 0.75)');
-                            gradient.addColorStop(0.5, 'rgba(29, 140, 248, 0.5)');
-                            gradient.addColorStop(1, 'rgba(29, 140, 248, 0)');
+                            green_gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 650);
+                            green_gradient.addColorStop(0, 'rgba(50, 205, 50, 0.75)');
+                            green_gradient.addColorStop(0.5, 'rgba(50, 205, 50, 0.5)');
+                            green_gradient.addColorStop(1, 'rgba(50, 205, 50, 0)');
 
                             // Global Options
                             Chart.defaults.global.defaultFontFamily = 'inherit';
@@ -124,7 +118,7 @@
                                 datasets:[{
                                   label:'Liquid Level',
                                   data:{{ sensor.y_vals }},
-                                  backgroundColor: gradient,
+                                  backgroundColor: {% if sensor.type == 'chem' %} green_gradient {% else %} gradient {% endif %},
                                   borderWidth:1, //Effects plotted line on chart
                                   borderColor:'black',
                                   hoverBorderWidth:3,
@@ -173,9 +167,6 @@
 
                                   }
                             });
-
-                          //add to manual tracking
-                          linecharts['{{sensorID}}'] = linechart{{sensorID}};
                           </script>
 
 

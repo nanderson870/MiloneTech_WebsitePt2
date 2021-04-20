@@ -5854,6 +5854,7 @@
     color: #00f2c3;
     background-color: #29f4cd;
     border-color: #29f4cd;
+    margin-top: 10px;
   }
   
   .alert-success hr {
@@ -5867,6 +5868,8 @@
   .alert-info {
     color: #1d8cf8;
     border-color: #419ef9;
+    background-color: #1d8cf8;
+    margin-top: 10px;
   }
   
   .alert-info hr {
@@ -5881,6 +5884,7 @@
     color: #ff8d72;
     background-color: #ff9f89;
     border-color: #ff9f89;
+    margin-top: 10px;
   }
   
   .alert-warning hr {
@@ -5895,6 +5899,7 @@
     color: #fd5d93;
     background-color: #fd77a4;
     border-color: #fd77a4;
+    margin-top: 10px;
   }
   
   .alert-danger hr {
@@ -15908,7 +15913,7 @@
   }
   
   .notification {
-    background: #fd5d93;
+    background: #1d8cf8;
     color: #ffffff;
     border-radius: 0.875rem;
     height: 6px;
@@ -15919,7 +15924,7 @@
     font-weight: 800;
     top: 10px;
     right: 10px;
-    border: 1px solid #fd5d93;
+    border: 1px solid #1d8cf8;
   }
   
   .navbar-nav li {
@@ -19866,7 +19871,8 @@
   }
   
   .white-content .card:not(.card-white).card-tasks .card-body i {
-    color: rgba(34, 42, 66, 0.7);
+    /* color: rgba(34, 42, 66, 0.7); */
+    color: #ffffff;
   }
   
   .white-content .card:not(.card-white).card-tasks .card-body i:hover {
@@ -20513,7 +20519,9 @@
 .dropdown-content a:hover {background-color: #ddd}
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-.show {display:block;}
+.show {
+  display:block;
+}
 
 .logo-image {
   position: relative;
@@ -20612,13 +20620,7 @@ rgba(0, 128, 0, 0.3);
 
 } 
 
-.card-body2 {
-  
-}
-
 .form-for-register {
-  /* padding-right: 750px; */
-  /* width: 210%; */
   margin-right: 19%;
   margin-left: 31%;
 }
@@ -20690,4 +20692,78 @@ rgba(0, 128, 0, 0.3);
 
 #register {
   padding-left: 184px;
+}
+
+#map {
+  height: 400px;
+  /* The height is 400 pixels */
+  width: 100%;
+  /* The width is the width of the web page */
+}
+
+#fname {
+  border-color: #2b3553;
+    border-radius: 0.4285rem;
+    font-size: 0.75rem;
+    -webkit-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -moz-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -o-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -ms-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    height: 35px;
+    border-width: 1px;
+    width: 15%;
+
+}
+
+#lname {
+  margin-left: 1%;
+  border-color: #2b3553;
+    border-radius: 0.4285rem;
+    font-size: 0.75rem;
+    -webkit-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -moz-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -o-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -ms-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    height: 35px;
+    border-width: 1px;
+    width: 15%;
+}
+
+#email-support {
+  width: 31.3%;
+  margin-top: 1%;
+  border-color: #2b3553;
+    border-radius: 0.4285rem;
+    font-size: 0.75rem;
+    -webkit-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -moz-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -o-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    -ms-transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    height: 35px;
+    border-width: 1px;
+
+}
+
+#message {
+  width: 31.3%;
+  height: 220px;
+  border-color: #2b3553;
+  border-radius: 0.4285rem;
+  border-width: 1px;
+    
+}
+
+#support-submit {
+  background-color: #1d8cf8;
+  color: white;
+  padding: 7px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.2857rem;
+  width: 40mm;
+
 }
