@@ -36,11 +36,13 @@
             function add_datapoint(new_data) {
             //Adds a new data_point to its respective
             //Argument new_data is an array containing [SID, datapoint]
-                var sid = new_data[0]
-                var datapoint = new_data[1]
+                var sid = new_data[0];
+                var datapoint = new_data[1];
 
                 //grab the chart we're updating
                 var chart = linecharts[sid];
+
+
 
                 //This is Chart.js standard, push the datapoint label, then the datapoint in
                 chart.data.labels.push(datapoint["Time Stamp"]);
@@ -52,8 +54,8 @@
 
                 //Update the battery bar percentage and color
                 document.getElementById("battery col " + sid).innerHTML= "Battery Level: " + datapoint["Battery %"] + "%";
-                var color
-                var background
+                var color;
+                var background;
                 if (datapoint["Battery %"] > 70) {
                     color = 'green';
                     background = 'rgba(0, 128, 0, 0.3)';
@@ -61,12 +63,12 @@
                     color = 'rgb(255, 170, 0)';
                     background = 'rgba(255, 170, 0, 0.3)';
                 } else {
-                    color = "red"
+                    color = "red";
                     background = 'rgba(128, 0, 0, 0.3)';
                 }
-                document.getElementById("battery col " + sid).style.color = color
-                document.getElementById("battery col " + sid).style.background = background
-                document.getElementById("battery col " + sid).style.textalign = "center"
+                document.getElementById("battery col " + sid).style.color = color;
+                document.getElementById("battery col " + sid).style.background = background;
+                document.getElementById("battery col " + sid).style.textalign = "center";
 
                 chart.update();
             }
@@ -97,6 +99,11 @@
                         <script>
 
                             var myChart{{sensorID}} = document.getElementById('{{sensorID}}').getContext('2d');
+
+                            gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 650);
+                            gradient.addColorStop(0, 'rgba(29, 140, 248, 0.75)');
+                            gradient.addColorStop(0.5, 'rgba(29, 140, 248, 0.5)');
+                            gradient.addColorStop(1, 'rgba(29, 140, 248, 0)');
 
                             // Global Options
                             Chart.defaults.global.defaultFontFamily = 'inherit';
@@ -161,7 +168,7 @@
                             });
 
                           //add to manual tracking
-                          linecharts[{{sensorID}}] = linechart{{sensorID}};
+                          linecharts['{{sensorID}}'] = linechart{{sensorID}};
                           </script>
 
 

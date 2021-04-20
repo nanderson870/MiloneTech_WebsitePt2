@@ -6,11 +6,12 @@
 
 <h1>Settings</h1>
 
-<h3>Payment Settings & Tier</h3>
+<!---<h3>Payment Settings & Tier</h3> --->
 
 {% block body %}
 <body class="body">
-	<div class="container">
+	<div class="content-section">
+		<h3>Payment Settings & Tier</h3>
 			<form name="to paypal" action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post">
 			<div id="smart-button-container">
       <div style="text-align: center;">
@@ -110,5 +111,116 @@ initPayPalButton();
 
 	</div>
 </body>
+
+<div class="content-section">
+	<h3>Notification Settings</h3>
+        <form method="POST" action="">
+        {{ form.hidden_tag() }}
+	    {{ form.csrf_token }}
+			<div class="content-section">
+            	<fieldset class="form-group"></fieldset>
+            	<table id="trigger" style="width:100%">
+					<h4>Active Alerts</h4>
+            		<tr>
+						<th>Alert #</th>
+						<th>Sensor ID</th>
+						<th>Sensor Name</th>
+						<th>Trigger Level</th>
+            			<th>Delivery</th>
+            		</tr>
+
+					{% for alert in alerts %}
+					<tr>
+						<td> {{ alert[0] }} </td>
+						<td> {{ alert[2] }} </td>
+						{% for sensor_ID_to_name in form.sensorID.choices  %}
+							{% if sensor_ID_to_name[0] == alert[2] %}
+								<td> {{ sensor_ID_to_name[1] }} </td>
+							{% endif %}
+						{% endfor %}
+						<td> {{ alert[3] }}% </td>
+						{% if alert[4] == 1 %}
+							<td>text</td>
+						{% else %}
+							<td>email</td>
+						{% endif %}
+					</tr>
+					{% endfor %}
+                </table>
+			</div>
+		<br>
+		<div class="content-section">
+		<h4>Choose Sensor to Update</h4>
+		<center>
+		{{ form.sensorID(class="btn btn-block btn-lg btn-primary") }}
+		<br>
+		</center>
+
+		<div class="content-section">
+			<h4>Add a New Alert to Chosen Sensor</h4>
+		<div class="row">
+			<div class="col-auto">
+                        	{{ form.level(class="form-control form-control-lg", placeholder="Send alert at this %", style="text-align: center") }}
+                        </div>
+                        <div class="col-auto">
+				{{ form.textOrEmail(class="btn btn-primary btn-lg") }}
+                        </div>
+			<div class="col-auto">
+				{{ form.submit(class="btn btn-outline-success btn-lg") }}
+			</div>
+		</div>
+		</div>
+		<div class="content-section">
+			<h4>Change Chosen Sensor Name</h4>
+		<div class="row">
+			<div class="col-8">
+                                {{form.newSensorName(class="form-control form-control-block form-control-lg", placeholder="Enter a new name", style="text-align: center") }}
+                        </div>
+			<div class="col-1">
+                                {{form.changeName(class="btn btn-outline-warning btn-lg", style="text-align: center") }}
+                        </div>
+		</div>
+		</div>
+		<div class="content-section">
+			<h4 class>Change Sensor Group of Chosen Sensor</h4>
+		<div class="row">
+                        <div class="col-5 mr-0 ml-0">
+                        	{{ form.sensorGroup(class="btn btn-primary btn-lg") }}
+			</div>
+			<div class="col-3 mr-0 ml-0">
+                        	{{ form.newSensorGroup(class="form-control form-control-lg", placeholder=" Enter a new group", style="text-align: center") }}
+                        </div>
+                        <div class="col-1">
+                                {{ form.changeGroup(class="btn btn-outline-warning btn-lg", style="text-align: center") }}
+                        </div>
+                </div>
+
+		</div>
+
+			<div class="content-section">
+					<h4>Delete Alert</h4>
+					<div class="row">
+					<div class="col-6">
+						{{ form.alerts(class="btn btn-primary btn-lg") }}
+					</div>
+
+
+
+                        <div class="col-2">
+                                {{ form.removeAlert(class="btn btn-outline-danger btn-lg") }}
+                        </div>
+                	</div>
+
+                </div>
+
+		</div>
+
+
+
+	    </fieldset>
+        </form>
+    </div>
 {% endblock %}
 {% endblock %}
+
+

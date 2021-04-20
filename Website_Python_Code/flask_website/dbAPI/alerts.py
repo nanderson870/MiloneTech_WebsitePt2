@@ -5,6 +5,7 @@ from . import db
 class Alerts(db.Base):
     __table__ = db.Base.metadata.tables['alerts']
 
+
 def check_alerts(sens_id):
     try:
         with db.engine.connect() as connection:
@@ -24,22 +25,24 @@ def check_alerts(sens_id):
 def add_sensor_alert(acc_id, sens_id, trigger, email_alert, phone_alert):
     try:
         with db.engine.connect() as connection:
-            checker = check_alerts(acc_id, sens_id)
-            if checker == 0 or not checker:
-                connection.execute(
-                    "insert into alerts "
-                    "values ({}, '{}', {}, {}, {})"
-                    .format(acc_id, sens_id, trigger, email_alert,
-                                                                              phone_alert))
-                return True
+            checker = check_alerts(sens_id)
+            #if len(checker) == 0 or not checker:
+            connection.execute(
+                "insert into alerts (accountID, sensorID, triggerLevel, alertPhone, alertEmail)"
+                "values ({}, '{}', {}, {}, {})"
+                .format(acc_id, sens_id, trigger, email_alert, phone_alert))
+            return True
+            '''
             else:
                 connection.execute(
                     "update alerts "
                     "set alerts.triggerLevel = {}, alerts.alertEmail = {}, alerts.alertPhone = {} "
-                    "where alerts.accountID = {} and alerts.sensorID = {}"
+                    "where alerts.accountID = {} and alerts.sensorID = '{}'"
                     .format(trigger, email_alert, phone_alert, acc_id, sens_id))
                 return True
-    except exc.SQLAlchemyError:
+                '''
+    except exc.SQLAlchemyError as e:
+        print(">>>>>>>SQLAlchemy Error : " + str(e))
         return False
 
 

@@ -402,6 +402,8 @@ def settings():
 
     for alert in alerts:
         form.alerts.choices.append((alert[0], alert[0]))
+
+
     if form.is_submitted():
         if int(form.textOrEmail.data) == 1:
             if not form.level.data == '':
