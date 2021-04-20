@@ -84,7 +84,6 @@
 
             {% for groupname, group in account_info.sensor_data.items() %}
 
-            {% if groupname == "nicktest" %}
             <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
 
                 {% for sensorID, sensor in group.items() %}
@@ -191,7 +190,6 @@
 
                 {% endfor %}
                 </div>
-              {% endif %}
 
             {% endfor %}
       
