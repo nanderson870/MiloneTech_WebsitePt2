@@ -88,9 +88,9 @@
 
                 {% for sensorID, sensor in group.items() %}
 
-                    <article class="media content-section">
+                    <article class="media content-section" style="width:60%; margin-right: auto; margin-left: auto">
 
-                      <div class="media-body">
+                      <div class="media-body" style="width:100%" >
 
                       <h3 style="text-align: left">{% if sensor.name != None %}Sensor: {{ sensor.name }}{% else %}SensorID: {{sensorID}}{% endif %}</h3>
 
@@ -101,15 +101,11 @@
 
                             var myChart{{sensorID}} = document.getElementById('{{sensorID}}').getContext('2d');
                             
-                            gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 650);
+                            gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 300);
                             gradient.addColorStop(0, 'rgba(29, 140, 248, 0.75)');
                             gradient.addColorStop(0.5, 'rgba(29, 140, 248, 0.5)');
                             gradient.addColorStop(1, 'rgba(29, 140, 248, 0)');
 
-                            gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 650);
-                            gradient.addColorStop(0, 'rgba(29, 140, 248, 0.75)');
-                            gradient.addColorStop(0.5, 'rgba(29, 140, 248, 0.5)');
-                            gradient.addColorStop(1, 'rgba(29, 140, 248, 0)');
 
                             // Global Options
                             Chart.defaults.global.defaultFontFamily = 'inherit';
@@ -178,8 +174,8 @@
                           </script>
 
 
-                      <div id="battery col {{sensorID}}" class = "battery col-md-6" style="color :{% if sensor.bat_level > 70 %} green {% elif sensor.bat_level > 30 %} rgb(255, 170, 0) {% else %} red {% endif %}; font-size: 32px; background:
-                      {% if sensor.bat_level > 70 %} rgba(0, 128, 0, 0.3) {% elif sensor.bat_level > 30 %} rgba(255, 170, 0, 0.3) {% else %} rgba(128, 0, 0, 0.3) {% endif %}; text-align: center">Battery Level: {{ sensor.bat_level }}%</div>
+                      <div id="battery col {{sensorID}}" class = "battery col-sm-6" style="color :{% if sensor.bat_level > 70 %} green {% elif sensor.bat_level > 30 %} rgb(255, 170, 0) {% else %} red {% endif %}; font-size: 16px; background:
+                      {% if sensor.bat_level > 70 %} rgba(0, 128, 0, 0.3) {% elif sensor.bat_level > 30 %} rgba(255, 170, 0, 0.3) {% else %} rgba(128, 0, 0, 0.3) {% endif %}; text-align: center; margin: auto">Battery Level: {{ sensor.bat_level }}%</div>
 
                       </div>
 

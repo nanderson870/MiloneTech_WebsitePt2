@@ -4,10 +4,19 @@
 
 {% block content %}
 
+<!--- Commented by Nick 4/20 in favor of the if statement below. Uncomment this and comment that if needed.
 <h1>Welcome User</h1>
 {% for user in info %}
     <h1>Welcome {{ current_user.name }}</h1>
 {% endfor %}
+--->
+
+{% if account_info.name %}
+  <h1>Welcome, {{ account_info.name }}!</h1>
+{% else %}
+  <h1>Welcome!</h1>
+{% endif %}
+
 <div class="row">
     <div class="col-lg-6 col-md-12">
       <div class="card card-tasks">

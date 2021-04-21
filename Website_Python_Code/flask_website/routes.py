@@ -28,13 +28,15 @@ sessions = {}
 
 
 class User(UserMixin):
-
     def initialize_user_data(self):
 
         # Getting Sensors for Account
         data = {}
 
         data["id"] = self.id
+
+        data["name"] = db.accounts.get_name_by_id(self.id)[0]
+        print(data["name"])
 
         data["email"] = self.email
         data["payment_tier"] = db.accounts.get_status_by_id(self.id)
@@ -134,7 +136,6 @@ class User(UserMixin):
 
         return user_id
 
-
     def __init__(self, userID):
         self.id = userID
         self.email = db.accounts.get_email_by_id(userID)
@@ -176,39 +177,47 @@ def login():
 @app.route("/home")
 @login_required
 def home():
-    # current_user.initialize_user_data()
+    current_user.initialize_user_data()
     return render_template('home.html', account_info=current_user.user_data)
+
 
 @app.route("/sensors")
 def sensors():
     current_user.initialize_user_data()
     return render_template('sensors.html', account_info=current_user.user_data)
 
+
 @app.route("/live-sensors")
 def liveSensors():
     current_user.initialize_user_data()
     return render_template('live-sensors.html', account_info=current_user.user_data)
+
 
 @app.route("/live-sensors-2")
 def liveSensors2():
     current_user.initialize_user_data()
     return render_template('live-sensors-2.html', account_info=current_user.user_data)
 
+
 @app.route("/profile")
 def profile():
     return render_template('page-user.html')
+
 
 @app.route("/notifications")
 def notifications():
     return render_template('notifications.html')
 
+
 @app.route("/maps")
 def maps():
     return render_template('maps.html')  
 
+
 @app.route("/support")
 def support():
     return render_template('support.html')       
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
