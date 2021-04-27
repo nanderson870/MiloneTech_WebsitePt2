@@ -17,6 +17,13 @@
   <h1>Welcome!</h1>
 {% endif %}
 
+
+<!-- {% for groupname, group in account_info.sensor_data.items() %}
+  {% for sensorID, sensor in group.items() %}
+    <h1>{{ sensor.name }}</h1>
+  {% endfor %}
+{% endfor %} -->
+
 <div class="row">
     <div class="col-lg-6 col-md-12">
       <div class="card card-tasks">
@@ -29,7 +36,7 @@
               <button type="button" aria-hidden="true" class="close" data-dismiss="alert" arial-label="Close">
                 <i class="tim-icons icon-simple-remove"></i>
               </button>
-              <span>eTape Liquid Sensor battery is at 20%</span>
+              <span>eTape Liquid Sensor battery is at 25%</span>
             </div>
 
             <div class="alert alert-info">
@@ -37,7 +44,7 @@
               <button type="button" aria-hidden="true" class="close" data-dismiss="alert" arial-label="Close">
                 <i class="tim-icons icon-simple-remove"></i>
               </button>
-              <span>eTape Liquid Sensor battery is at 30%</span>
+              <span>eTape Liquid Sensor battery is at 25%</span>
             </div>
             
             <div class="alert alert-warning">
@@ -56,13 +63,7 @@
               <span>Liquid levels are above 90%</span>
             </div>
         
-            <div class="alert alert-success">
-                      
-              <button type="button" aria-hidden="true" class="close" data-dismiss="alert" arial-label="Close">
-                <i class="tim-icons icon-simple-remove"></i>
-              </button>
-              <span>eTape Liquid Sensor has been delivered on 4/11/2021</span>
-            </div>
+            
         </div>
         
       </div>
@@ -72,7 +73,7 @@
     <div class="col-lg-6 col-md-12">
       <div class="card ">
         <div class="card-header">
-          <h4 class="card-title"> Orders</h4>
+          <h4 class="card-title"> Active Sensors</h4>
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -80,74 +81,43 @@
               <thead class=" text-primary">
                 <tr>
                   <th>
-                    Product
+                    Sensor ID
                   </th>
                   <th>
-                    Status
+                    Liquid Level
                   </th>
                   <th>
-                    Estimated Delivery
+                    Battery Percentage
                   </th>
                  
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    eTape Liquid Sensor
-                  </td>
-                  <td>
-                    Delivered
-                  </td>
-                  <td>
-                    4/11/2021
-                  </td>
-                </tr>
-                
-                <tr>
-                  <td>
-                    Chemical eTape Assembly
-                  </td>
-                  <td>
-                    In Transit
-                  </td>
-                  <td>
-                    4/25/2021
-                  </td>
-                </tr>
-               
-                <tr>
-                  <td>
-                    eTape Sensor Assembly Extension Cable
-                  </td>
-                  <td>
-                    In Transit
-                  </td>
-                  <td>
-                    4/25/2021
-                  </td>
-                </tr>
-                
-                <tr>
-                  <td>
-                    Polycarbonate Tube
-                  </td>
-                  <td>
-                    Received Order
-                  </td>
-                  <td>
-                    4/30/2021
-                  </td>
-                </tr>
-                <tr>
-                  
-                </tr>
-                <tr>
-                  
-                </tr>
-                <tr>
-                  
-                </tr>
+
+
+                {% for groupname, group in account_info.sensor_data.items() %}
+                  {% for sensorID, sensor in group.items() %}
+                    <tr>
+                      <td>
+                        {{ sensor.name }}
+                      </td>
+
+                      <td>
+                        {{ sensor.y_vals[-1] }}
+                      </td>
+
+                      <td>
+                        {{ sensor.bat_level}}%
+                      </td>
+                    </tr>
+            
+                  {% endfor %}
+                {% endfor %}
+
+
+
+
+             
               </tbody>
             </table>
           </div>

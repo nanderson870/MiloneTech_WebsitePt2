@@ -152,7 +152,7 @@ initPayPalButton();
 		<div class="content-section">
 		<h4>Choose Sensor to Update</h4>
 		<center>
-		{{ form.sensorID(class="btn btn-block btn-lg btn-primary") }}
+		{{ form.sensorID(class="btn btn-block btn-lg btn-outline-success") }}
 		<br>
 		</center>
 
@@ -163,7 +163,7 @@ initPayPalButton();
                         	{{ form.level(class="form-control form-control-lg", placeholder="Send alert at this %", style="text-align: center") }}
                         </div>
                         <div class="col-auto">
-				{{ form.textOrEmail(class="btn btn-primary btn-lg") }}
+				{{ form.textOrEmail(class="btn btn-outline-success btn-lg") }}
                         </div>
 			<div class="col-auto">
 				{{ form.submit(class="btn btn-outline-success btn-lg") }}
@@ -185,7 +185,7 @@ initPayPalButton();
 			<h4 class>Change Sensor Group of Chosen Sensor</h4>
 		<div class="row">
                         <div class="col-5 mr-0 ml-0">
-                        	{{ form.sensorGroup(class="btn btn-primary btn-lg") }}
+                        	{{ form.sensorGroup(class="btn btn-outline-success btn-lg") }}
 			</div>
 			<div class="col-3 mr-0 ml-0">
                         	{{ form.newSensorGroup(class="form-control form-control-lg", placeholder=" Enter a new group", style="text-align: center") }}
@@ -201,7 +201,7 @@ initPayPalButton();
 					<h4>Delete Alert</h4>
 					<div class="row">
 					<div class="col-6">
-						{{ form.alerts(class="btn btn-primary btn-lg") }}
+						{{ form.alerts(class="btn btn-outline-success btn-lg") }}
 					</div>
 
 
