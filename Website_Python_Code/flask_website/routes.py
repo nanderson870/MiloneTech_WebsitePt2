@@ -99,9 +99,6 @@ class User(UserMixin):
                 counter = 0
 
                 for data_point in sensor_values:
-                    '''
-                    curr_sensor["x_vals"] = data_point[5]
-                    '''
                     dateSQL = data_point[5]
                     dateSQL = dateSQL - datetime.timedelta(hours=5)   # The sensors report 5 hours ahead of EST
                     date = str(dateSQL)
@@ -182,34 +179,62 @@ def home():
 
 
 @app.route("/sensors")
+@login_required
 def sensors():
     current_user.initialize_user_data()
     return render_template('sensors.html', account_info=current_user.user_data)
 
 
 @app.route("/live-sensors")
+@login_required
 def liveSensors():
     current_user.initialize_user_data()
     return render_template('live-sensors.html', account_info=current_user.user_data)
 
 
 @app.route("/live-sensors-2")
+@login_required
 def liveSensors2():
     current_user.initialize_user_data()
     return render_template('live-sensors-2.html', account_info=current_user.user_data)
 
 
+@app.route("/live-sensors/sensor/<sensor_id>")
+@login_required
+def sensor_page(sensor_id):
+    print(db.sensors.get_acc_id_by_sens_id(sensor_id))
+    print(current_user.id)
+
+    try:
+        auth_id = db.sensors.get_acc_id_by_sens_id(sensor_id)
+        if not (str(auth_id) == str(current_user.id)):
+            return "Sensor not found", 404
+    except:
+        return "Sensor not found", 404
+
+    data = db.sensor_readings.get_n_sensor_data_points(sensor_id, 20)
+    chart_data = {"x_vals": [], "y_vals": []}
+    for datapoint in data:
+        chart_data['x_vals'].append(str(datapoint[0] - datetime.timedelta(hours=5)))
+        chart_data["y_vals"].append(datapoint[1])
+
+    return render_template('single-sensor.html', data=chart_data, sensorID=sensor_id)
+
+
 @app.route("/profile")
+@login_required
 def profile():
     return render_template('page-user.html')
 
 
 @app.route("/notifications")
+@login_required
 def notifications():
     return render_template('notifications.html')
 
 
 @app.route("/maps")
+@login_required
 def maps():
     return render_template('maps.html')  
 
@@ -318,14 +343,14 @@ def sensor():
                     '''(to_email, sensor, curr_user_name, alert_level, curr_level):'''
                     if email_alert_enc == 1:
                         full_name = owner_acc_info[2] + " " + owner_acc_info[3]
-                        email.send_email_notification(owner_acc_info[1],sensor_name, full_name ,poss_alert[3],entry["Liquid %"])
+                        email.send_email_notification(owner_acc_info[1], sensor_name, full_name, poss_alert[3], entry["Liquid %"])
                         email_alert_enc += 1
                         hit = True
                         pass
 
                     if  text_alert_enc == 1:
                         if owner_acc_info[4]:
-                            email.send_text_notification(owner_acc_info[4], sensor_name, full_name ,poss_alert[3],entry["Liquid %"])
+                            email.send_text_notification(owner_acc_info[4], sensor_name, full_name, poss_alert[3], entry["Liquid %"])
                             text_alert_enc += 1
                             hit = True
                         pass
@@ -368,7 +393,6 @@ def sensor():
     print(time_response)
 
     return time_response
-
 
 
 @app.route("/account", methods=['GET', 'POST'])
@@ -507,4 +531,8 @@ def disconnected():
     pprint(sessions)
 
 
+@socketio.on("change_sensor_specs")
+def change_sensor_specs(data):
+    pprint(data)
+    return
 

@@ -62,9 +62,29 @@ def get_sensor_data_points(sens_id):
             result = connection.execute("select * "
                                         "from sensor_readings "
                                         "where sensorID = '{}'"
+                                        "order by recordTime asc"
                                         .format(sens_id))
             for row in result:
                 data.append(row)
+            return data
+    except exc.SQLAlchemyError:
+        return False
+
+
+# get the last n datapoints
+def get_n_sensor_data_points(sens_id, n):
+    try:
+        with db.engine.connect() as connection:
+            data = []
+            result = connection.execute("select recordTime, liquidLevel "
+                                        "from sensor_readings "
+                                        "where sensorID = '{}' "
+                                        "order by recordTime desc "
+                                        "limit {}"
+                                        .format(sens_id, n))
+            for row in result:
+                data.append(row)
+            data.reverse()  # because it's current in descending order, no good for charts
             return data
     except exc.SQLAlchemyError:
         return False

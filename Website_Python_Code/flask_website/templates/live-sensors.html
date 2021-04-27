@@ -2,6 +2,35 @@
 
 {% block title %}Sensors{% endblock %} 
 
+<script>
+    var colorsDarker = {    'red' : 'red',
+                            'yellow' : 'rgba(255, 170, 0, 0.3)'
+                            'green' : 'green' };
+
+    var colors = {  'red' : 'rgba(128, 0, 0, 0)',
+                    'yellow' : 'rgba(255, 170, 0, 0)'
+                    'green' : 'rgba(0, 128, 0, 0)' };
+
+    function get_darker_color_by_batt(battLevel)
+        if(battLevel > 70) {
+            return colorsDarker['green'];
+        } else if(battLevel > 30) {
+            return colorsDarker['yellow'];
+        } else {
+            return colorsDarker['red'];
+        }
+    }
+
+    function get_color_by_batt(battLevel)
+        if(battLevel > 70) {
+            return colors['green'];
+        } else if(battLevel > 30) {
+            return colors['yellow'];
+        } else {
+            return colors['red'];
+        }
+    }
+</script>
 
 {% block content %}
 <h1>Sensors</h1>
@@ -12,7 +41,7 @@
       <a href="/live-sensors">Real</a>
       <a href="/live-sensors-2">No Group</a>
     </div>
-  </div>
+</div>
 
 <br/>
 <br/>
@@ -53,22 +82,12 @@
                 });
 
                 //Update the battery bar percentage and color
-                document.getElementById("battery col " + sid).innerHTML= "Battery Level: " + datapoint["Battery %"] + "%";
-                var color;
-                var background;
-                if (datapoint["Battery %"] > 70) {
-                    color = 'green';
-                    background = 'rgba(0, 128, 0, 0.3)';
-                } else if (datapoint["Battery %"] > 30) {
-                    color = 'rgb(255, 170, 0)';
-                    background = 'rgba(255, 170, 0, 0.3)';
-                } else {
-                    color = "red";
-                    background = 'rgba(128, 0, 0, 0.3)';
-                }
-                document.getElementById("battery col " + sid).style.color = color;
-                document.getElementById("battery col " + sid).style.background = background;
-                document.getElementById("battery col " + sid).style.textalign = "center";
+                var batteryBar = document.getElementById("battery col " + sid)
+
+                batteryBar.innerHTML= "Battery Level: " + datapoint["Battery %"] + "%";
+                batteryBar.style.color = get_darker_color_by_batt(datapoint["Battery %"]);
+                batteryBar.style.background = get_color_by_batt(datapoint["Battery %"]);
+                batteryBar.style.textalign = "center";
 
                 chart.update();
             }
@@ -90,10 +109,12 @@
 
                     <article class="media content-section" style="width:60%; margin-right: auto; margin-left: auto">
 
+
                       <div class="media-body" style="width:100%" >
 
-                      <h3 style="text-align: left">{% if sensor.name != None %}Sensor: {{ sensor.name }}{% else %}SensorID: {{sensorID}}{% endif %}</h3>
+                      <h3 style="text-align: left; float:left; margin-right:10px">{% if sensor.name != None %}Sensor: {{ sensor.name }}{% else %}SensorID: {{sensorID}}{% endif %}</h3>
 
+                          <a href="/live-sensors/sensor/{{sensorID}}" style="float:left">Configure</a>
                       <canvas id='{{sensorID}}'></canvas>
 
                         <script>
@@ -101,7 +122,7 @@
 
                             var myChart{{sensorID}} = document.getElementById('{{sensorID}}').getContext('2d');
                             
-                            gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 300);
+                            gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 400);
                             gradient.addColorStop(0, 'rgba(29, 140, 248, 0.75)');
                             gradient.addColorStop(0.5, 'rgba(29, 140, 248, 0.5)');
                             gradient.addColorStop(1, 'rgba(29, 140, 248, 0)');

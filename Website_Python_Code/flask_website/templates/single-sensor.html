@@ -1,0 +1,194 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Sensor {{sensorID}} {% endblock %}
+
+{% block content %}
+
+<script>
+    var linechart
+
+    //Catches and responds to SocketIO messages (mostly for debug)
+    socket.on('message', function(msg) {
+        console.log("SocketIO clientside message: " + msg);
+    });
+
+    //Received from routes.py when a POST request comes in, brings in a datapoint
+    socket.on('POST', function(new_data) {
+        if(new_data[0] == '{{sensorID}}') {
+            add_datapoint(new_data);
+        }
+    });
+
+
+    function add_datapoint(new_data) {
+            //Adds a new data_point to its respective
+            //Argument new_data is an array containing [SID, datapoint]
+            var datapoint = new_data[1];
+
+            //This is Chart.js standard, push the datapoint label, then the datapoint in
+            linechart.data.labels.push(datapoint["Time Stamp"]);
+            linechart.data.labels.splice(0, 1);
+            linechart.data.datasets.forEach((dataset) => {
+                dataset.data.push(datapoint["Liquid %"]);
+                dataset.data.splice(0, 1);
+            });
+
+            //Update the battery bar percentage and color
+            var batteryBar = document.getElementById("battery col " + '{{sensorID}}')
+
+            //batteryBar.innerHTML= "Battery Level: " + datapoint["Battery %"] + "%";
+            //batteryBar.style.color = get_darker_color_by_batt(datapoint["Battery %"]);
+            //batteryBar.style.background = get_color_by_batt(datapoint["Battery %"]);
+            //batteryBar.style.textalign = "center";
+
+            linechart.update();
+    }
+
+    function select_rectangular() {
+        console.log("Rectangle selected");
+    }
+
+    function select_cylindrical() {
+        console.log("Cylinder selected");
+    }
+
+    function select_height_only() {
+        console.log("Height selected");
+    }
+
+</script>
+
+<div class="form-group form-inline">
+<article class="media content-section" style="width:60%; float:left; margin-right:10px">
+    <div class="media-body" style="width:100%;">
+        <h1 style="text-align:center">Sensor {{snesorID}}</h1>
+
+        <canvas id="chart"></canvas>
+
+        <script>
+            var myChart = document.getElementById("chart").getContext('2d');
+
+            gradient = myChart.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(29, 140, 248, 0.75)');
+            gradient.addColorStop(0.5, 'rgba(29, 140, 248, 0.5)');
+            gradient.addColorStop(1, 'rgba(29, 140, 248, 0)');
+
+            // Global Options
+            Chart.defaults.global.defaultFontFamily = 'inherit';
+            Chart.defaults.global.defaultFontSize = 18; //Effects x and y's number font size
+            Chart.defaults.global.defaultFontColor = '#777';
+            linechart = new Chart(myChart, {
+                type:'line',
+                data:{
+                    labels: {{ data.x_vals | tojson }},
+                    datasets:[{
+                        label:'Liquid Level',
+                        data:{{ data.y_vals }},
+                        backgroundColor: gradient,
+                        borderWidth:1, //Effects plotted line on chart
+                        borderColor:'black',
+                        hoverBorderWidth:3,
+                        hoverBorderColor:'#000'
+                    }]
+                },
+                options:{
+
+                    legend:{
+                        display:true,
+                        position:'right',
+                        labels:{
+                            fontColor:'#000'
+                        }
+                    },
+                    scales: {
+                    yAxes: [{
+                    display: true,
+                    ticks: {
+                        suggestedMin: 0,
+                        steps: 10,
+                        stepValue: 10,
+                        max: 100
+                    }
+                }],
+                xAxes: [{
+                    display: true,
+                    ticks: {
+                        autoSkip: true,
+                        padding: 4,
+                        fontSize: 12
+                    }
+                }]
+            },
+            layout:{
+            padding:{
+                left:0,
+                right:0,
+                bottom:0,
+                top:0
+            }
+        },
+        tooltips:{
+            enabled:true
+            }
+
+        }
+        });
+
+        </script>
+    </div>
+
+
+</article>
+
+<div class="content-section" style="float:left; width:30%">
+        <h2 style = "text-align:center"><strong>Measurement Configuration</strong></h2>
+
+        <!--- Type selector --->
+        <div class="form-group form-inline">
+            <div style="width:50%; margin-right:10%">
+                <label for="type_selector" style="float:left"><strong>Measurement Type</strong></label><br>
+                <select id="type_selector" style="width:100%">
+                    <!--- <option onclick="select_height_only()">Height Only</option> --->
+                    <option onclick="select_rectangular()">Rectangular</option>
+                    <!--- <option onclick="select_cylindrical()">Cylindrical</option> --->
+                </select>
+            </div>
+
+            <div style="width:20%">
+                <label for="units_selector" style="float:left">Units</label>
+                <select id="units_selector" style="float:left;">
+                    <option onclick="select_inches">Inches</option>
+                    <option onclick="select_cm">Centimeters</option>
+                </select>
+            </div>
+        </div>
+
+        <br>
+
+        <!--- Input Fields --->
+        <div class="form-group form-inline">
+            <div style="width:40%">
+                <label for="width_field" style="float:left;"><strong>Width</strong></label><br>
+                <div id="width_field" class="form-group form-inline">
+                    <input name="Width" style="float:left; width:50%; margin-right:5px">
+                    inches
+                </div>
+            </div>
+            <div style="width:40%">
+                <label for="length_field" style="float:left;"><strong>Length</strong></label><br>
+                <div id="length_field" class="form-group form-inline">
+                    <input name="Width" style="float:left; width:50%; margin-right:5px">
+                    inches
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <button class="btn-primary" type="button" onclick="save_tank_configuration()" style="width:100%; display:block">
+            Save
+        </button>
+</div>
+
+</div>
+{% endblock content %}
