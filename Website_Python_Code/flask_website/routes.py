@@ -193,6 +193,7 @@ def get_sensor_data_route():
     # elements are the lower and upper time bounds of the sensor readings we wish to query, in
     # datetime format: 'YYYY-MM-DD HH:MM:SS'
     data = request.json
+    pprint(data)
     start_date = datetime.datetime.now() - datetime.timedelta(days=(data["days"]))
     start_date.replace(hour=0, minute=0, second=0)
     sensor_id = data["sensor_id"]
