@@ -60,6 +60,21 @@
     function select_height_only() {
         console.log("Height selected");
     }
+
+    function new_range() {
+        var range_selector = document.getElementById("range_selector");
+        var si = range_selector.selectedIndex
+        if(si == 0) {
+            defaultChart();
+        } else if(si == 1) {
+            changeDate(1);
+        } else if(si == 2) {
+            changeDate(7);
+        } else if(si == 3) {
+            changeDate(30);
+        }
+    }
+
     function changeDate(new_day) {
         chart_mode = new_day
 
@@ -189,11 +204,11 @@
 
             <div style="width:50%; margin-right:10%">
                 <label for="range_selector" style="float:left"><strong>Change Date</strong></label><br>
-                <select id="range_selector" style="width:100%">
-                    <option onclick="defaultChart()">Live</option>
-                    <option onclick="changeDate(1)">Past Day</option>
-                    <option onclick="changeDate(7)">Past Week</option>
-                    <option onclick="changeDate(30)">Past Month</option>
+                <select onchange="new_range()" id="range_selector" style="width:100%">
+                    <option>Live</option>
+                    <option>Past Day</option>
+                    <option>Past Week</option>
+                    <option>Past Month</option>
                 </select>
             </div>
 
