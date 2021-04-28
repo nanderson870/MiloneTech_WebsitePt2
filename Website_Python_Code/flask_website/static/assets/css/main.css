@@ -20776,3 +20776,24 @@ rgba(0, 128, 0, 0.3);
 #add {
   height: 52px;
 }
+
+.configure {
+  padding-top: 1%;
+}
+
+#textOrEmail {
+  margin-top: 0%;
+}
+
+#submit {
+  height: 52px;
+  margin-top: 0%;
+}
+
+#changeName {
+  margin-top: 0%;
+}
+
+#sensorGroup, #changeGroup {
+  margin-top: 0%;
+}

@@ -160,7 +160,7 @@ initPayPalButton();
 			<h4>Add a New Alert to Chosen Sensor</h4>
 		<div class="row">
 			<div class="col-auto">
-                        	{{ form.level(class="form-control form-control-lg", placeholder="Send alert at this %", style="text-align: center") }}
+                        	{{ form.level(class="form-control form-control-lg", placeholder="Send alert at this %", style="text-align: center", onfocus="this.placeholder = ''", onblur="this.placeholder = 'Send alert at this %'") }}
                         </div>
                         <div class="col-auto">
 				{{ form.textOrEmail(class="btn btn-outline-success btn-lg") }}
@@ -174,7 +174,7 @@ initPayPalButton();
 			<h4>Change Chosen Sensor Name</h4>
 		<div class="row">
 			<div class="col-8">
-                                {{form.newSensorName(class="form-control form-control-block form-control-lg", placeholder="Enter a new name", style="text-align: center") }}
+                                {{form.newSensorName(class="form-control form-control-block form-control-lg", placeholder="Enter a new name", style="text-align: center", onfocus="this.placeholder = ''", onblur="this.placeholder = 'Enter a new name'") }}
                         </div>
 			<div class="col-1">
                                 {{form.changeName(class="btn btn-outline-warning btn-lg", style="text-align: center") }}
@@ -188,7 +188,7 @@ initPayPalButton();
                         	{{ form.sensorGroup(class="btn btn-outline-success btn-lg") }}
 			</div>
 			<div class="col-3 mr-0 ml-0">
-                        	{{ form.newSensorGroup(class="form-control form-control-lg", placeholder=" Enter a new group", style="text-align: center") }}
+                        	{{ form.newSensorGroup(class="form-control form-control-lg", placeholder=" Enter a new group", style="text-align: center", onfocus="this.placeholder = ''", onblur="this.placeholder = 'Enter a new group'") }}
                         </div>
                         <div class="col-1">
                                 {{ form.changeGroup(class="btn btn-outline-warning btn-lg", style="text-align: center") }}
