@@ -1,6 +1,7 @@
 from sqlalchemy import exc
 from . import db
 
+
 def get_acc_id_by_sens_id(sens_id):
     try:
         with db.engine.connect() as connection:
@@ -15,6 +16,7 @@ def get_acc_id_by_sens_id(sens_id):
             return acc[0]
     except exc.SQLAlchemyError:
         return False
+
 
 class Sensors(db.Base):
     __table__ = db.Base.metadata.tables['sensors']

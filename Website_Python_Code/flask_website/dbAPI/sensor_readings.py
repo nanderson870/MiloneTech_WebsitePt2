@@ -2,8 +2,10 @@ from sqlalchemy import exc
 from . import db
 from . import sensors
 
+
 class SensorReadings(db.Base):
     __table__ = db.Base.metadata.tables['sensor_readings']
+
 
 def add_reading_no_time(sens_id, liquid, battery, rssi):
     try:
@@ -25,6 +27,7 @@ def add_reading_yes_time(sens_id, liquid, battery, time_stamp, rssi):
             return True
     except exc.SQLAlchemyError:
         return False
+
 
 def add_reading_no_time(sens_id, liquid, battery, rssi):
     try:
@@ -71,7 +74,7 @@ def get_sensor_data_points(sens_id):
         return False
 
 
-# get the last n datapoints
+# get the last n datapoints, only recordTime and liquidLevel
 def get_n_sensor_data_points(sens_id, n):
     try:
         with db.engine.connect() as connection:
@@ -87,6 +90,52 @@ def get_n_sensor_data_points(sens_id, n):
             data.reverse()  # because it's current in descending order, no good for charts
             return data
     except exc.SQLAlchemyError:
+        return False
+
+
+def get_sensor_data_points_by_date(sens_id, start_date, end_date=None, max_size=-1):
+    try:
+        with db.engine.connect() as connection:
+            data = []
+            # Query for the sensor_readings in our date interval
+            if end_date is None:
+                result = connection.execute("select recordTime, liquidLevel "
+                                            "from sensor_readings "
+                                            "where sensorID = '{}' and recordTime > '{}' "
+                                            "order by recordTime desc "
+                                            .format(sens_id, start_date))
+            else:
+                result = connection.execute("select recordTime, liquidLevel "
+                                            "from sensor_readings "
+                                            "where sensorID = '{}' and recordTime > '{}' and recordTime < '{}' "
+                                            "order by recordTime desc "
+                                            .format(sens_id, start_date, end_date))
+
+            # Turn our SQL result into a list that we can actually use
+            for row in result:
+                data.append(row)
+
+            # if max size was passed and is less than the length of the data,
+            if 0 < max_size < len(data):
+                # cut it down to roughly max size
+                # TODO: change the way we exclude values. If rate of change is high, this may not show critical values
+                step = int(len(data) / max_size)
+                new_data = data[::step]
+                data = new_data
+
+                # then make it exactly max size
+                data = data[:max_size]
+
+            # Reverse the list order because it's currently in descending order, and this is designed for chart use
+            data.reverse()
+
+            return data
+
+    except exc.SQLAlchemyError as e:
+        print("SQL Exception: " + str(e))
+        return False
+    except Exception as e:
+        print("Exception: " + str(e))
         return False
 
 

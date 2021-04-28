@@ -45,7 +45,9 @@
     }
 
     function select_rectangular() {
-        console.log("Rectangle selected");
+        $.get("/sensors/get-data", function(data) {
+            console.log(data);
+        });
     }
 
     function select_cylindrical() {

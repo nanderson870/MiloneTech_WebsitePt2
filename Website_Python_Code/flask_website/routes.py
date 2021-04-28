@@ -1,4 +1,5 @@
 from flask import render_template, url_for, flash, redirect, Response, request
+
 '''from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.pyplot import figure
@@ -9,7 +10,8 @@ import base64
 import json
 
 import flask_website.emailer as email
-from flask_website.forms import RegistrationForm, LoginForm, SettingsForm, AccountForm, SensorAccountForm,RequestResetForm, ResetPasswordForm
+from flask_website.forms import RegistrationForm, LoginForm, SettingsForm, AccountForm, SensorAccountForm, \
+    RequestResetForm, ResetPasswordForm
 from flask_website import app, bcrypt, db, login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import login_user, current_user, logout_user, login_required, UserMixin
@@ -17,8 +19,6 @@ import datetime
 
 from pprint import pprint
 
-# Nick's SocketIO Project
-#       imports
 from flask_website import socketio
 from flask_socketio import SocketIO, emit, send
 
@@ -36,7 +36,6 @@ class User(UserMixin):
         data["id"] = self.id
 
         data["name"] = db.accounts.get_name_by_id(self.id)[0]
-        print(data["name"])
 
         data["email"] = self.email
         data["payment_tier"] = db.accounts.get_status_by_id(self.id)
@@ -100,7 +99,7 @@ class User(UserMixin):
 
                 for data_point in sensor_values:
                     dateSQL = data_point[5]
-                    dateSQL = dateSQL - datetime.timedelta(hours=5)   # The sensors report 5 hours ahead of EST
+                    dateSQL = dateSQL - datetime.timedelta(hours=5)  # The sensors report 5 hours ahead of EST
                     date = str(dateSQL)
 
                     curr_sensor["x_vals"].append(date)
@@ -109,9 +108,10 @@ class User(UserMixin):
 
                 if len(curr_sensor['y_vals']) > 20:
                     num_readings = len(curr_sensor['y_vals'])
-                    # modifies display chart
-                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 20:]   # expands x values
-                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 20:]   # expand y values
+                    # Overwrites the x_vals and y_vals with the last 20 elements of themselves
+                    # Replace 20 with something else for a different default number of displayed data points
+                    curr_sensor['x_vals'] = curr_sensor['x_vals'][num_readings - 20:]
+                    curr_sensor['y_vals'] = curr_sensor['y_vals'][num_readings - 20:]
 
                 data["sensor_data"][group][sensor] = curr_sensor
 
@@ -120,14 +120,14 @@ class User(UserMixin):
     def get_reset_token(self, expires_sec=1800):
 
         s = Serializer(app.config["SECRET_KEY"], expires_sec)
-        return s.dumps( { 'user_id':self.id }).decode('utf-8')
+        return s.dumps({'user_id': self.id}).decode('utf-8')
 
     def verify_reset_token(token):
 
         s = Serializer(app.config["SECRET_KEY"])
 
         try:
-           user_id = s.loads(token)['user_id']
+            user_id = s.loads(token)['user_id']
         except:
             return None
 
@@ -147,7 +147,6 @@ def load_user(user_id):
 @app.route("/", methods=['GET', 'POST'])
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-
     if current_user.is_authenticated:
         return redirect(url_for('home'))
 
@@ -158,7 +157,7 @@ def login():
         userID = db.accounts.get_id_by_email(form.email.data)
         user = User(userID)
 
-        if user and bcrypt.check_password_hash( db.accounts.get_pass_by_id(userID), form.password.data):
+        if user and bcrypt.check_password_hash(db.accounts.get_pass_by_id(userID), form.password.data):
             print("almost there")
             login_user(user, remember=form.remember.data)
             flash('You have been logged in!', 'success')
@@ -167,7 +166,7 @@ def login():
 
         else:
             flash('Login Unsuccessful. Please check username and password', 'danger')
-            
+
     return render_template('login.html', title='Login', form=form)
 
 
@@ -185,6 +184,38 @@ def sensors():
     return render_template('sensors.html', account_info=current_user.user_data)
 
 
+# Send POST requests to here to receive data points within a certain timeframe
+# See below for details on the contents of the POST
+@app.route("/sensors/get-date-range", methods=["POST"])
+@login_required
+def get_sensor_data_route():
+    # A JSON should have been passed via the post with items "start_date" and "end_date", whose
+    # elements are the lower and upper time bounds of the sensor readings we wish to query, in
+    # datetime format: 'YYYY-MM-DD HH:MM:SS'
+    data = request.json
+    start_date = data["start_date"]
+    end_date = data["end_date"]
+    sensor_id = data["sensor_id"]
+
+    # Ensure that only the owner of the sensor can view this data
+    # Comment the following if-statement out if you need send test requests from an outside source like Reqbin
+    # TODO: this 403 should be bypassed if current_user is an admin
+    if db.sensors.get_acc_id_by_sens_id(sensor_id) != current_user.id:
+        return "Unauthorized", 403
+
+    # Grab the data using the appropriate database function. Adjust the max_size argument to the number
+    # of data points you think this function should return, or remove it for all of them (potentially thousands)
+    data = db.sensor_readings.get_sensor_data_points_by_date(sensor_id, start_date, end_date, max_size=60)
+
+    # Then parse it into a new JSON, chart_data, for a more usable form in the chart on the clientside
+    chart_data = {"x_vals": [], "y_vals": []}
+    for datapoint in data:
+        chart_data['x_vals'].append(str(datapoint[0] - datetime.timedelta(hours=5)))
+        chart_data["y_vals"].append(datapoint[1])
+
+    return chart_data
+
+
 @app.route("/live-sensors")
 @login_required
 def liveSensors():
@@ -199,12 +230,10 @@ def liveSensors2():
     return render_template('live-sensors-2.html', account_info=current_user.user_data)
 
 
+# Returns the html page for a single sensor, where measurement can be configured
 @app.route("/live-sensors/sensor/<sensor_id>")
 @login_required
 def sensor_page(sensor_id):
-    print(db.sensors.get_acc_id_by_sens_id(sensor_id))
-    print(current_user.id)
-
     try:
         auth_id = db.sensors.get_acc_id_by_sens_id(sensor_id)
         if not (str(auth_id) == str(current_user.id)):
@@ -236,41 +265,38 @@ def notifications():
 @app.route("/maps")
 @login_required
 def maps():
-    return render_template('maps.html')  
+    return render_template('maps.html')
 
 
 @app.route("/support")
 def support():
-    return render_template('support.html')       
+    return render_template('support.html')
 
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-
     if current_user.is_authenticated:
         return redirect(url_for('home'))
 
     form = RegistrationForm()
-    
+
     if form.validate_on_submit():
-        
         hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
 
         fullname = form.name.data.split()
         firstname = fullname[0]
         lastname = fullname[-1]
 
-        db.accounts.create_account(form.email.data,firstname,lastname,hashed_pass)
-        
+        db.accounts.create_account(form.email.data, firstname, lastname, hashed_pass)
+
         flash(f'Your account has been Created! You may now Login', 'success')
         return redirect(url_for('login'))
-    
+
     return render_template('register.html', title='Register', form=form)
 
 
 @app.route("/sensor", methods=['POST'])
 def sensor():
-
     data_string = "Received post at: %s\n" % datetime.datetime.now()
     print(data_string)
     data = request.json
@@ -281,7 +307,6 @@ def sensor():
 
     sensorID = data["Sensor ID"]
 
-
     '''all assuming that the sensor already exists in the DB'''
     curr_sensor_info = db.sensors.get_sensor_info(sensorID)
 
@@ -289,7 +314,7 @@ def sensor():
 
         sensor_name = curr_sensor_info[0][4]
 
-        #if the sensor_name is Null in DB, just make it equal to the sensorID
+        # if the sensor_name is Null in DB, just make it equal to the sensorID
         if not sensor_name:
             sensor_name = sensorID
 
@@ -300,8 +325,6 @@ def sensor():
         curr_sensor_alerts = db.alerts.check_alerts(sensorID)
         '''curr_sensor_alerts structure FOR NOW
         [(rec num,acc_id, 'sens_id', trig_lev , email? (0/1/2), text? (0/1/2))]'''
-
-
 
         for poss_alert in curr_sensor_alerts:
 
@@ -319,7 +342,7 @@ def sensor():
                         hit = True
                         pass
 
-                    if  text_alert_enc == 2:
+                    if text_alert_enc == 2:
                         text_alert_enc = 1
                         hit = True
                         pass
@@ -328,8 +351,7 @@ def sensor():
                         db.alerts.set_alert_type(poss_alert[0], email_alert_enc, text_alert_enc)
                         break
 
-
-        #Code for sending out an email if the level is un-triggered
+        # Code for sending out an email if the level is un-triggered
         for poss_alert in curr_sensor_alerts:
 
             for entry in data["Sensor Data"]:
@@ -343,14 +365,16 @@ def sensor():
                     '''(to_email, sensor, curr_user_name, alert_level, curr_level):'''
                     if email_alert_enc == 1:
                         full_name = owner_acc_info[2] + " " + owner_acc_info[3]
-                        email.send_email_notification(owner_acc_info[1], sensor_name, full_name, poss_alert[3], entry["Liquid %"])
+                        email.send_email_notification(owner_acc_info[1], sensor_name, full_name, poss_alert[3],
+                                                      entry["Liquid %"])
                         email_alert_enc += 1
                         hit = True
                         pass
 
-                    if  text_alert_enc == 1:
+                    if text_alert_enc == 1:
                         if owner_acc_info[4]:
-                            email.send_text_notification(owner_acc_info[4], sensor_name, full_name, poss_alert[3], entry["Liquid %"])
+                            email.send_text_notification(owner_acc_info[4], sensor_name, full_name, poss_alert[3],
+                                                         entry["Liquid %"])
                             text_alert_enc += 1
                             hit = True
                         pass
@@ -399,7 +423,7 @@ def sensor():
 @login_required
 def account():
     form = AccountForm()
-    sensorAccountForm=SensorAccountForm()
+    sensorAccountForm = SensorAccountForm()
     if form.validate_on_submit():
         if form.newEmail.data != '':
             db.accounts.set_account_email(current_user.email, form.newEmail.data)
@@ -416,31 +440,31 @@ def account():
         if sensorAccountForm.sensorID.data != '':
             flash('sensor ID: ' + sensorAccountForm.sensorID.data + ' has been added to your account', 'success')
             db.sensors.add_sensor_to_account(sensorAccountForm.sensorID.data, current_user.email)
-            #db.accounts.set_account_payment_tier(0, current_user.email) Proof that it does Work. TODO: Make it work.
+            # db.accounts.set_account_payment_tier(0, current_user.email) Proof that it does Work. TODO: Make it work.
 
-    return render_template('account.html', title='Account', form=form, sensorAccountForm=sensorAccountForm, account_info=current_user.user_data, currentUser = current_user)
+    return render_template('account.html', title='Account', form=form, sensorAccountForm=sensorAccountForm,
+                           account_info=current_user.user_data, currentUser=current_user)
 
 
 @app.route("/settings", methods=['GET', 'POST'])
 @login_required
 def settings():
-
     form = SettingsForm()
     alerts = []
     for sensor in db.sensors.get_all_sensors(current_user.id):
-            if db.sensors.get_sensor_info(sensor)[0][4] == None:
-                form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][2]))
-            else:
-                form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][4]))
-            alerts += db.alerts.check_alerts(sensor)
-            if not (not db.sensors.get_sensor_info(sensor)[0][6] or db.sensors.get_sensor_info(sensor)[0][6] == 'None'):
-                if db.sensors.get_sensor_info(sensor)[0][6] not in form.sensorGroup.choices:
-                    form.sensorGroup.choices.append((db.sensors.get_sensor_info(sensor)[0][6], db.sensors.get_sensor_info(sensor)[0][6]))
+        if db.sensors.get_sensor_info(sensor)[0][4] == None:
+            form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][2]))
+        else:
+            form.sensorID.choices.append((sensor, db.sensors.get_sensor_info(sensor)[0][4]))
+        alerts += db.alerts.check_alerts(sensor)
+        if not (not db.sensors.get_sensor_info(sensor)[0][6] or db.sensors.get_sensor_info(sensor)[0][6] == 'None'):
+            if db.sensors.get_sensor_info(sensor)[0][6] not in form.sensorGroup.choices:
+                form.sensorGroup.choices.append(
+                    (db.sensors.get_sensor_info(sensor)[0][6], db.sensors.get_sensor_info(sensor)[0][6]))
     alerts.sort()
 
     for alert in alerts:
         form.alerts.choices.append((alert[0], alert[0]))
-
 
     if form.is_submitted():
         if int(form.textOrEmail.data) == 1:
@@ -464,7 +488,8 @@ def settings():
             if not form.newSensorGroup.data == '':
                 db.sensors.set_sensor_group(form.sensorID.data, form.newSensorGroup.data)
                 flash("Changed Current Sensor's Group to: " + form.newSensorGroup.data, 'success')
-    return render_template('settings.html', title='Settings', form=form, account_info=current_user.user_data, alerts=alerts)
+    return render_template('settings.html', title='Settings', form=form, account_info=current_user.user_data,
+                           alerts=alerts)
 
 
 @app.route("/logout")
@@ -476,7 +501,6 @@ def logout():
 
 @app.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
-
     form = RequestResetForm()
 
     if form.validate_on_submit():
@@ -484,16 +508,15 @@ def reset_request():
         flash('An email has been sent with instructions on how to reset your password')
         user_obj = User(user)
         token = User.get_reset_token(user_obj)
-        email.send_password_request(form.email.data, url_for('reset_token',token=token, _external=True))
+        email.send_password_request(form.email.data, url_for('reset_token', token=token, _external=True))
 
         return redirect(url_for('login'))
 
-    return render_template('reset_request.html', title = "Reset Password", form=form)
+    return render_template('reset_request.html', title="Reset Password", form=form)
 
 
 @app.route("/reset_password/<token>", methods=['GET', 'POST'])
 def reset_token(token):
-
     user = load_user(User.verify_reset_token(token))
 
     if user is None:
@@ -503,14 +526,13 @@ def reset_token(token):
     form = ResetPasswordForm()
 
     if form.validate_on_submit():
-
         hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        db.accounts.set_account_password(hashed_pass, user.email )
+        db.accounts.set_account_password(hashed_pass, user.email)
 
         flash('Your password has been updated! You may now Login', 'success')
         return redirect(url_for('login'))
 
-    return render_template('reset_token.html', title = "Reset Password", form=form)
+    return render_template('reset_token.html', title="Reset Password", form=form)
 
 
 # Catch users connecting, store the (session id):(user id) pair in the sessions dictionary
@@ -535,4 +557,3 @@ def disconnected():
 def change_sensor_specs(data):
     pprint(data)
     return
-
