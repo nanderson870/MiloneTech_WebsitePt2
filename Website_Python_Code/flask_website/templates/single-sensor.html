@@ -45,9 +45,7 @@
     }
 
     function select_rectangular() {
-        $.get("/sensors/get-data", function(data) {
-            console.log(data);
-        });
+        console.log("Rectangle");
     }
 
     function select_cylindrical() {
@@ -63,7 +61,7 @@
 <div class="form-group form-inline">
 <article class="media content-section" style="width:60%; float:left; margin-right:10px">
     <div class="media-body" style="width:100%;">
-        <h1 style="text-align:center">Sensor {{snesorID}}</h1>
+        <h1 style="text-align:center">Sensor {{sensorID}}</h1>
 
         <canvas id="chart"></canvas>
 
@@ -143,8 +141,8 @@
 </article>
 
 <div class="content-section" style="float:left; width:30%">
-        <h2 style = "text-align:center"><strong>Measurement Configuration</strong></h2>
 
+        <h2 style = "text-align:center"><strong>Measurement Configuration</strong></h2>
         <!--- Type selector --->
         <div class="form-group form-inline">
             <div style="width:50%; margin-right:10%">
@@ -156,13 +154,17 @@
                 </select>
             </div>
 
+            <!---
             <div style="width:20%">
+
                 <label for="units_selector" style="float:left">Units</label>
                 <select id="units_selector" style="float:left;">
-                    <option onclick="select_inches">Inches</option>
-                    <option onclick="select_cm">Centimeters</option>
+                    <option onclick="select_inches()">Inches</option>
+                    <option onclick="select_cm()">Centimeters</option>
                 </select>
+
             </div>
+            --->
         </div>
 
         <br>
