@@ -183,20 +183,27 @@ def sensors():
     current_user.initialize_user_data()
     return render_template('sensors.html', account_info=current_user.user_data)
 
-
 # Send POST requests to here to receive data points within a certain timeframe
 # See below for details on the contents of the POST
 @app.route("/sensors/get-range", methods=["POST"])
 #@login_required
-def get_sensor_data_route():
+def get_sensor_data_range_route():
     # A JSON should have been passed via the post with items "start_date" and "end_date", whose
     # elements are the lower and upper time bounds of the sensor readings we wish to query, in
     # datetime format: 'YYYY-MM-DD HH:MM:SS'
     data = request.json
-    pprint(data)
     start_date = datetime.datetime.now() - datetime.timedelta(days=(data["days"]))
     start_date.replace(hour=0, minute=0, second=0)
     sensor_id = data["sensor_id"]
+
+    # Dynamically determine number of datapoints to display
+    num_datapoints = 0
+    if data["days"] >= 30:
+        num_datapoints = 60
+    elif data["days"] >= 7:
+        num_datapoints = 24
+    else:
+        num_datapoints = 24
 
 
     # Ensure that only the owner of the sensor can view this data
@@ -207,7 +214,7 @@ def get_sensor_data_route():
 
     # Grab the data using the appropriate database function. Adjust the max_size argument to the number
     # of data points you think this function should return, or remove it for all of them (potentially thousands)
-    data = db.sensor_readings.get_sensor_data_points_by_date(sensor_id, start_date, max_size=100)
+    data = db.sensor_readings.get_sensor_data_points_by_date(sensor_id, start_date, max_size=num_datapoints)
 
     # Then parse it into a new JSON, chart_data, for a more usable form in the chart on the clientside
     chart_data = {"x_vals": [], "y_vals": []}
@@ -217,6 +224,19 @@ def get_sensor_data_route():
 
     return chart_data
 
+
+@app.route("/sensors/get-default-datapoints", methods=["POST"])
+def get_sensor_data_points():
+    data = request.json
+    sensor_id = data["sensor_id"]
+
+    data = db.sensor_readings.get_n_sensor_data_points(sensor_id, 20)
+    chart_data = {"x_vals": [], "y_vals": []}
+    for datapoint in data:
+        chart_data['x_vals'].append(str(datapoint[0] - datetime.timedelta(hours=5)))
+        chart_data["y_vals"].append(datapoint[1])
+
+    return chart_data
 
 @app.route("/live-sensors")
 @login_required

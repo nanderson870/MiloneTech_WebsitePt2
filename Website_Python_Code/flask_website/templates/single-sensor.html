@@ -6,6 +6,7 @@
 
 <script>
     var linechart
+    var chart_mode = 0  //Values: 0 = live, anything else = how many days are being displayed
 
     //Catches and responds to SocketIO messages (mostly for debug)
     socket.on('message', function(msg) {
@@ -22,6 +23,11 @@
     function add_datapoint(new_data) {
             //Adds a new data_point to its respective
             //Argument new_data is an array containing [SID, datapoint]
+
+            if (chart_mode != 0) {
+                return;
+            }
+
             var datapoint = new_data[1];
 
             //This is Chart.js standard, push the datapoint label, then the datapoint in
@@ -55,8 +61,9 @@
         console.log("Height selected");
     }
     function changeDate(new_day) {
+        chart_mode = new_day
+
         var arr = {days: new_day, sensor_id: "{{sensorID}}"}
-        console.log(arr["days"]);
 
         $.ajax({
             url: '/sensors/get-range',
@@ -65,8 +72,33 @@
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
             async: false,
-            success: function(msg) {
-                console.log(msg);
+            success: function(response) {
+                linechart.data.labels = response["x_vals"];
+                linechart.data.datasets.forEach((dataset) => {
+                    dataset.data = response["y_vals"];
+                });
+                linechart.update()
+            }
+        });
+    }
+
+    function defaultChart() {
+        chart_mode = 0
+
+        var arr = {sensor_id: "{{sensorID}}"}
+        $.ajax({
+            url: '/sensors/get-default-datapoints',
+            type: 'POST',
+            data: JSON.stringify(arr),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: false,
+            success: function(response) {
+                linechart.data.labels = response["x_vals"];
+                linechart.data.datasets.forEach((dataset) => {
+                    dataset.data = response["y_vals"];
+                });
+                linechart.update()
             }
         });
     }
@@ -158,6 +190,7 @@
             <div style="width:50%; margin-right:10%">
                 <label for="range_selector" style="float:left"><strong>Change Date</strong></label><br>
                 <select id="range_selector" style="width:100%">
+                    <option onclick="defaultChart()">Live</option>
                     <option onclick="changeDate(1)">Past Day</option>
                     <option onclick="changeDate(7)">Past Week</option>
                     <option onclick="changeDate(30)">Past Month</option>
