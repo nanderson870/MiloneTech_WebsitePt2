@@ -142,8 +142,25 @@
 
 </article>
 
+
+
 <div class="content-section" style="float:left; width:30%">
         <h2 style = "text-align:center"><strong>Measurement Configuration</strong></h2>
+
+       <!--- Type selector --->
+        <div class="form-group">
+            <div style="width:50%; margin-right:10%">
+                <label for="type_selector" style="float:left"><strong>Day</strong></label><br>
+                <select id="type_selector" style="width:100%">
+                    <!--- <option onclick="select_height_only()">Height Only</option> --->
+                    <option onclick="select_date()">Date</option>
+                    <!--- <option onclick="select_cylindrical()">Cylindrical</option> --->
+                </select>
+                <button class="btn-primary" type="button" onclick="save_tank_configuration()" style="float: right; margin-right: 50%; width:100%; display:block">
+            Update
+        </button>
+            </div>
+        </div>
 
         <!--- Type selector --->
         <div class="form-group form-inline">
