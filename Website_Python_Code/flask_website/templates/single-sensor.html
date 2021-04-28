@@ -54,6 +54,22 @@
     function select_height_only() {
         console.log("Height selected");
     }
+    function changeDate(new_day) {
+        var arr = {days: new_day, sensor_id: "{{sensorID}}"}
+        console.log(arr["days"]);
+
+        $.ajax({
+            url: '/sensors/get-range',
+            type: 'POST',
+            data: JSON.stringify(arr),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: false,
+            success: function(msg) {
+                console.log(msg);
+            }
+        });
+    }
 
 </script>
 
@@ -139,9 +155,20 @@
 
 </article>
 
+            <div style="width:50%; margin-right:10%">
+                <label for="range_selector" style="float:left"><strong>Change Date</strong></label><br>
+                <select id="range_selector" style="width:100%">
+                    <option onclick="changeDate(1)">Past Day</option>
+                    <option onclick="changeDate(7)">Past Week</option>
+                    <option onclick="changeDate(30)">Past Month</option>
+                </select>
+            </div>
+
 <div class="content-section" style="float:left; width:30%">
 
         <h2 style = "text-align:center"><strong>Measurement Configuration</strong></h2>
+
+
         <!--- Type selector --->
         <div class="form-group form-inline">
             <div style="width:50%; margin-right:10%">

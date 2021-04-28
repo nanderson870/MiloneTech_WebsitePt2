@@ -1,5 +1,5 @@
 {% extends "layouts/base.html" %}
-
+{% block stylesheets %}<link rel="stylesheet" href="/static/assets/css/livesensors.css">{% endblock stylesheets %}
 {% block title %}Sensors{% endblock %} 
 
 <script>
@@ -34,7 +34,6 @@
 
 {% block content %}
 <h1>Sensors</h1>
-
 <div class="dropdown dropdown nav-item">
     <button onclick="myFunction()" class="dropbtn">Choose a sensor here</button>
     <div id="myDropdown" class="dropdown-content">
@@ -219,6 +218,13 @@
             <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
 
                 {% for sensorID, sensor in group.items() %}
+
+                    <div class="topnav" id="myTopNav">
+                        <a class="active" href="/live-sensors">Live</a>
+                        <a href="#">Past Week</a>
+                        <a href="#">Past Month</a>
+                        <a href="#">Past Year</a>
+                     </div>
 
                     <article class="media content-section">
 
