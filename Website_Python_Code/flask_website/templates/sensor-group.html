@@ -35,12 +35,14 @@
 {% block content %}
 <h1>Sensors</h1>
 <div class="dropdown dropdown nav-item">
-    <button onclick="myFunction()" class="dropbtn">Choose a sensor here</button>
+    <button onclick="myFunction()" class="dropbtn">Filter by Group</button>
     <div id="myDropdown" class="dropdown-content">
-      <a href="/live-sensors">Real</a>
-      <a href="/live-sensors-2">No Group</a>
+        <a href="/sensors">All Sensors</a>
+        {% for groupname, group in account_info.sensor_data.items() %}
+            <a href="/sensors/sensor-group/{{groupname}}">{{groupname}}</a>
+        {% endfor %}
     </div>
-</div>
+  </div>
 
 <br/>
 <br/>
@@ -101,7 +103,7 @@
             <!-- Displays chart for sensors -->
 
             {% for groupname, group in account_info.sensor_data.items() %}
-
+            {% if groupname == groupFilter %}
             <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
 
                 {% for sensorID, sensor in group.items() %}
@@ -113,14 +115,14 @@
 
                       <h3 style="text-align: left; float:left; margin-right:10px">{% if sensor.name != None %}Sensor: {{ sensor.name }}{% else %}SensorID: {{sensorID}}{% endif %}</h3>
 
-                          <a href="/live-sensors/sensor/{{sensorID}}" style="float:left">View</a>
+                          <a href="/sensors/{{sensorID}}" style="float:left">View</a>
                       <canvas id='{{sensorID}}'></canvas>
 
                         <script>
 
 
                             var myChart{{sensorID}} = document.getElementById('{{sensorID}}').getContext('2d');
-                            
+
                             gradient = myChart{{sensorID}}.createLinearGradient(0, 0, 0, 400);
                             gradient.addColorStop(0, 'rgba(29, 140, 248, 0.75)');
                             gradient.addColorStop(0.5, 'rgba(29, 140, 248, 0.5)');
@@ -206,25 +208,27 @@
 
                 {% endfor %}
                 </div>
-
-            {% endfor %}
+            {% endif %}
+    {% endfor %}
       
 
             Times are represented in EST
-{% else %}
+    {% else %}
 
         {% for groupname, group in account_info.sensor_data.items() %}
+        {% if groupname == groupFilter %}
 
             <div style = " text-align: center"> <h3> <strong>GROUP: {{ groupname }} </strong></h3>
 
                 {% for sensorID, sensor in group.items() %}
-
+                    <!---
                     <div class="topnav" id="myTopNav">
-                        <a class="active" href="/live-sensors">Live</a>
+                        <a class="active" href="/sensor-group">Live</a>
                         <a href="#">Past Week</a>
                         <a href="#">Past Month</a>
                         <a href="#">Past Year</a>
                      </div>
+                     --->
 
                     <article class="media content-section">
 
@@ -244,7 +248,10 @@
 
                 {% endfor %}
                 </div>
-            {% endfor %}
+
+            {% endif %}
+
+        {% endfor %}
 
     {% endif %}
 

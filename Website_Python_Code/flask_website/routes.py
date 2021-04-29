@@ -268,24 +268,23 @@ def store_settings_route():
     return {"result": result}
 
 
-@app.route("/live-sensors")
+@app.route("/sensors")
 @login_required
 def liveSensors():
     current_user.initialize_user_data()
-    return render_template('live-sensors.html', account_info=current_user.user_data)
+    return render_template('sensors.html', account_info=current_user.user_data)
 
 
-@app.route("/live-sensors-2")
+@app.route("/sensors/sensor-group/<sensor_group>")
 @login_required
-def liveSensors2():
+def sensor_group_route(sensor_group):
     current_user.initialize_user_data()
-    return render_template('live-sensors-2.html', account_info=current_user.user_data)
-
+    return render_template('sensor-group.html', account_info=current_user.user_data, groupFilter=sensor_group)
 
 # Returns the html page for a single sensor, where measurement can be configured
-@app.route("/live-sensors/sensor/<sensor_id>")
+@app.route("/sensors/<sensor_id>")
 @login_required
-def sensor_page(sensor_id):
+def single_sensor_page_route(sensor_id):
     try:
         auth_id = db.sensors.get_acc_id_by_sens_id(sensor_id)
         if not (str(auth_id) == str(current_user.id)):

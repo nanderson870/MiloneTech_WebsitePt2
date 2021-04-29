@@ -24,14 +24,24 @@ def has_stored_settings(sensor_id):
 
 def get_sensor_settings(sensor_id):
     try:
+
         with db.engine.connect() as connection:
+            # If this sensor has no settings stored in the db, give it placeholder ones
+            if not has_stored_settings(sensor_id):
+                connection.execute("insert into sensor_settings "
+                                   "values ('{}', 'None', 0, 0, 0, 0, 0, 0)"
+                                   .format(sensor_id))
+
             result = connection.execute("select * from sensor_settings "
                                         "where sensorID='{}'"
                                         .format(sensor_id))
             data = []
             for row in result:
                 data.append(row)
-            return data[0]
+            if len(data) > 0:
+                return data[0]
+            else:
+                return False
     except exc.SQLAlchemyError as e:
         print(str(e))
         return False
