@@ -3,6 +3,7 @@ from . import accounts
 from . import sensors
 from . import sensor_readings
 from . import alerts
+from . import settings
 from . import db
 
 

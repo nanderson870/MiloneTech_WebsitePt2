@@ -155,13 +155,15 @@ def login():
     if form.validate_on_submit():
 
         userID = db.accounts.get_id_by_email(form.email.data)
+        if userID is False:
+            flash('Login Unsuccessful. Please check username and password', 'danger')
+            return render_template('login.html', title='Login', form=form)
+
         user = User(userID)
 
-        if user and bcrypt.check_password_hash(db.accounts.get_pass_by_id(userID), form.password.data):
+        if user and bcrypt.check_password_hash(db.accounts.get_pass_by_id(userID), str(form.password.data)):
             print("almost there")
             login_user(user, remember=form.remember.data)
-            flash('You have been logged in!', 'success')
-
             return redirect(url_for('home'))
 
         else:
@@ -183,10 +185,11 @@ def sensors():
     current_user.initialize_user_data()
     return render_template('sensors.html', account_info=current_user.user_data)
 
+
 # Send POST requests to here to receive data points within a certain timeframe
 # See below for details on the contents of the POST
 @app.route("/sensors/get-range", methods=["POST"])
-#@login_required
+@login_required
 def get_sensor_data_range_route():
     # A JSON should have been passed via the post with items "start_date" and "end_date", whose
     # elements are the lower and upper time bounds of the sensor readings we wish to query, in
@@ -205,12 +208,11 @@ def get_sensor_data_range_route():
     else:
         num_datapoints = 24
 
-
     # Ensure that only the owner of the sensor can view this data
     # Comment the following if-statement out if you need send test requests from an outside source like Reqbin
     # TODO: this 403 should be bypassed if current_user is an admin
-    #if db.sensors.get_acc_id_by_sens_id(sensor_id) != current_user.id:
-        #return "Unauthorized", 403
+    if str(db.sensors.get_acc_id_by_sens_id(sensor_id)) != str(current_user.id):
+        return "Unauthorized", 403
 
     # Grab the data using the appropriate database function. Adjust the max_size argument to the number
     # of data points you think this function should return, or remove it for all of them (potentially thousands)
@@ -225,10 +227,16 @@ def get_sensor_data_range_route():
     return chart_data
 
 
+# TODO: this could be a GET, I was drunk when I did this. Just get and pass sensor_id in the url
+#  instead of sending a whole json
 @app.route("/sensors/get-default-datapoints", methods=["POST"])
+@login_required
 def get_sensor_data_points():
     data = request.json
     sensor_id = data["sensor_id"]
+
+    if str(db.sensors.get_acc_id_by_sens_id(sensor_id)) != str(current_user.id):
+        return "Unauthorized", 403
 
     data = db.sensor_readings.get_n_sensor_data_points(sensor_id, 20)
     chart_data = {"x_vals": [], "y_vals": []}
@@ -237,6 +245,28 @@ def get_sensor_data_points():
         chart_data["y_vals"].append(datapoint[1])
 
     return chart_data
+
+
+@app.route("/sensors/sensor-settings/store", methods=["POST"])
+@login_required
+def store_settings_route():
+    request_data = request.json
+
+    if str(db.sensors.get_acc_id_by_sens_id(request_data["sensorID"])) != str(current_user.id):
+        return "Unauthorized", 403
+
+    data = [request_data["sensorID"],
+            request_data["measurementType"],
+            request_data["width"],
+            request_data["length"],
+            request_data["radius"],
+            request_data["height"],
+            request_data["sensorBottomHeight"],
+            request_data["sensorTopHeight"]]
+
+    result = db.settings.store_sensor_settings(data)
+    return {"result": result}
+
 
 @app.route("/live-sensors")
 @login_required
@@ -269,7 +299,9 @@ def sensor_page(sensor_id):
         chart_data['x_vals'].append(str(datapoint[0] - datetime.timedelta(hours=5)))
         chart_data["y_vals"].append(datapoint[1])
 
-    return render_template('single-sensor.html', data=chart_data, sensorID=sensor_id)
+    sensor_settings = db.settings.get_sensor_settings(sensor_id)
+
+    return render_template('single-sensor.html', data=chart_data, sensorID=sensor_id, settings=sensor_settings)
 
 
 @app.route("/profile")

@@ -14,12 +14,13 @@ def get_id_by_email(acc_email):
                                         "from accounts "
                                         "where accountEmail = '{}'"
                                         .format(acc_email))
-            print(result)
             for row in result:
-                print(row)
+                # print(row)
                 acc_id.append(row[0])
-
-            return acc_id[0]
+            if len(acc_id) > 0:
+                return acc_id[0]
+            else:
+                return False
     except exc.SQLAlchemyError:
         return False
 
