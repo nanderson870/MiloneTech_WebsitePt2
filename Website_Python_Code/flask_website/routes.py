@@ -1,9 +1,5 @@
 from flask import render_template, url_for, flash, redirect, Response, request
 
-'''from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.pyplot import figure
-'''
 import datetime
 import io
 import base64
@@ -27,10 +23,11 @@ from flask_socketio import SocketIO, emit, send
 sessions = {}
 
 
+# Creates an abomination of a data item in it's writer's on words:
+# defines current_user.user_data. I would recommend just experimenting to see
+# what the structure is.
 class User(UserMixin):
     def initialize_user_data(self):
-
-        # Getting Sensors for Account
         data = {}
 
         data["id"] = self.id
@@ -179,11 +176,42 @@ def home():
     return render_template('home.html', account_info=current_user.user_data)
 
 
+# Default sensors page
 @app.route("/sensors")
 @login_required
 def sensors():
     current_user.initialize_user_data()
     return render_template('sensors.html', account_info=current_user.user_data)
+
+
+# Page for filtering sensors by group
+@app.route("/sensors/sensor-group/<sensor_group>")
+@login_required
+def sensor_group_route(sensor_group):
+    current_user.initialize_user_data()
+    return render_template('sensor-group.html', account_info=current_user.user_data, groupFilter=sensor_group)
+
+
+# Returns the html page for a single sensor, where measurement can be configured
+@app.route("/sensors/<sensor_id>")
+@login_required
+def single_sensor_page_route(sensor_id):
+    try:
+        auth_id = db.sensors.get_acc_id_by_sens_id(sensor_id)
+        if not (str(auth_id) == str(current_user.id)):
+            return "Sensor not found", 404
+    except:
+        return "Sensor not found", 404
+
+    data = db.sensor_readings.get_n_sensor_data_points(sensor_id, 20)
+    chart_data = {"x_vals": [], "y_vals": []}
+    for datapoint in data:
+        chart_data['x_vals'].append(str(datapoint[0] - datetime.timedelta(hours=5)))
+        chart_data["y_vals"].append(datapoint[1])
+
+    sensor_settings = db.settings.get_sensor_settings(sensor_id)
+
+    return render_template('single-sensor.html', data=chart_data, sensorID=sensor_id, settings=sensor_settings)
 
 
 # Send POST requests to here to receive data points within a certain timeframe
@@ -227,26 +255,7 @@ def get_sensor_data_range_route():
     return chart_data
 
 
-# TODO: this could be a GET, I was drunk when I did this. Just get and pass sensor_id in the url
-#  instead of sending a whole json
-@app.route("/sensors/get-default-datapoints", methods=["POST"])
-@login_required
-def get_sensor_data_points():
-    data = request.json
-    sensor_id = data["sensor_id"]
-
-    if str(db.sensors.get_acc_id_by_sens_id(sensor_id)) != str(current_user.id):
-        return "Unauthorized", 403
-
-    data = db.sensor_readings.get_n_sensor_data_points(sensor_id, 20)
-    chart_data = {"x_vals": [], "y_vals": []}
-    for datapoint in data:
-        chart_data['x_vals'].append(str(datapoint[0] - datetime.timedelta(hours=5)))
-        chart_data["y_vals"].append(datapoint[1])
-
-    return chart_data
-
-
+# POST sensor  settings to the db
 @app.route("/sensors/sensor-settings/store", methods=["POST"])
 @login_required
 def store_settings_route():
@@ -266,41 +275,6 @@ def store_settings_route():
 
     result = db.settings.store_sensor_settings(data)
     return {"result": result}
-
-
-@app.route("/sensors")
-@login_required
-def liveSensors():
-    current_user.initialize_user_data()
-    return render_template('sensors.html', account_info=current_user.user_data)
-
-
-@app.route("/sensors/sensor-group/<sensor_group>")
-@login_required
-def sensor_group_route(sensor_group):
-    current_user.initialize_user_data()
-    return render_template('sensor-group.html', account_info=current_user.user_data, groupFilter=sensor_group)
-
-# Returns the html page for a single sensor, where measurement can be configured
-@app.route("/sensors/<sensor_id>")
-@login_required
-def single_sensor_page_route(sensor_id):
-    try:
-        auth_id = db.sensors.get_acc_id_by_sens_id(sensor_id)
-        if not (str(auth_id) == str(current_user.id)):
-            return "Sensor not found", 404
-    except:
-        return "Sensor not found", 404
-
-    data = db.sensor_readings.get_n_sensor_data_points(sensor_id, 20)
-    chart_data = {"x_vals": [], "y_vals": []}
-    for datapoint in data:
-        chart_data['x_vals'].append(str(datapoint[0] - datetime.timedelta(hours=5)))
-        chart_data["y_vals"].append(datapoint[1])
-
-    sensor_settings = db.settings.get_sensor_settings(sensor_id)
-
-    return render_template('single-sensor.html', data=chart_data, sensorID=sensor_id, settings=sensor_settings)
 
 
 @app.route("/profile")
