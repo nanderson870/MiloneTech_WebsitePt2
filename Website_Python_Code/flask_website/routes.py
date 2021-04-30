@@ -329,8 +329,9 @@ def sensor():
     data = request.json
     data_string = data_string + str(data)
 
-    with open('./flask_website/records.txt', 'a') as f:
-        f.write(data_string)
+
+    #with open('./flask_website/records.txt', 'a') as f:
+        #f.write(data_string)
 
     sensorID = data["Sensor ID"]
 
@@ -578,9 +579,3 @@ def disconnected():
     print("disconnected user ID " + current_user.id + " from session " + request.sid)
     print("Active Sessions:")
     pprint(sessions)
-
-
-@socketio.on("change_sensor_specs")
-def change_sensor_specs(data):
-    pprint(data)
-    return
