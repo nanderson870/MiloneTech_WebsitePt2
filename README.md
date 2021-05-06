@@ -1,5 +1,5 @@
 # Introduction
-Hello. If you are reading this it's because you've been chosen to work on an expansion to the MiloneTech Website.
+Hello. If you are reading this it's because you will be working on an expansion to the MiloneTech Website.
 
 There will be a learning curve associated with working on this website, as there was for my group when we inherited the project from the previous group. I will do my best to explain how it works, but research will be necessary. There are more than enough resources online to learn what's going on, and trial and error in modifying our code will bolster your understanding immensely. Don't get overwhelmed, continue to study the program, and experiment, and you'll eventually find it to be much easier than it appeared.
 
