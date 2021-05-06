@@ -80,6 +80,9 @@ These are things we did not get working properly:
 
 Best of luck.
 If you need advice I will give what I can.
+
 -Nicholas Anderson
+
 Phone: 609 923 4024
+
 Email: nicholasanderson940@yahoo.com
